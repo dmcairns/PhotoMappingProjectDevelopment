@@ -2,7 +2,7 @@
 #  Photo Manipulation Tools                   #
 ###############################################
 
-#path <- "//Volumes//GoogleDrive//My Drive//Charlie//PhotoMappingProjectDevelopment//Data//Photos//"
+
 check.photo.format <- function(filename){
   ##########################################
   # Verify that the file is an image file  #
