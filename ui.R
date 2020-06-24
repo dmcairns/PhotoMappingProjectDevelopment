@@ -8,29 +8,44 @@
 library(shiny)
 
 shinyUI(fluidPage(
-
-  # Application title
-  titlePanel("Repeat Photography Database"),
-
-  # Sidebar with a slider input for number of photos
+  h4(" "),
+  
   sidebarLayout(
     sidebarPanel(
-      sliderInput("photoNumber",
-                  "Number of photos:",
-                  min = 1,
-                  max = 11,
-                  value = 1)
+      h4("Control Mode"),
+      
+      checkboxInput("userControlMap",
+                    "User Defined Map",
+                    value = FALSE),
+      
+      h4("Photos"),
+      
+      checkboxInput("selectAll",
+                    "Select All",
+                    value = TRUE),
+      
+      checkboxGroupInput("checkedPhotos",
+                         label = " ",
+                         choices = readPhotoNames(directoryPath),
+                         selected = readPhotoNames(directoryPath))
     ),
-
-    # Show a plot of the generated distribution
+    
     mainPanel(
+      h1("Repeat Photography Database"),
+      
       plotOutput("theMap",
                  click = "plot_click",
                  dblclick = "plot_dblclick",
                  hover = "plot_hover",
-                 brush = "plot_brush",
-                 width=530, height=500),
-      verbatimTextOutput("info")
+                 brush = "plot_brush"),
+      
+      h4("Statistics"),
+      
+      verbatimTextOutput("info"),
+      
+      h4("Photo Distances"),
+      
+      tableOutput("photoDistTable")
     )
   )
 ))
