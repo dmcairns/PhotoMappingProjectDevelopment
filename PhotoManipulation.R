@@ -2,10 +2,7 @@
 #  Photo Manipulation Tools                   #
 ###############################################
 
-<<<<<<< HEAD
-=======
-#path <- "//Volumes//GoogleDrive//My Drive//Charlie//PhotoMappingProjectDevelopment//Data//Photos//"
->>>>>>> 51a5eb04bb73536c34e35c18d520bc7dcc8d7dc5
+
 
 check.photo.format <- function(filename){
   ##########################################
