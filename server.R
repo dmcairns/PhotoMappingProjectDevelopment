@@ -10,6 +10,8 @@ shinyServer(function(input, output, session) {
 
   photos <- readPhotoCoordinates(directoryPath)
   
+  print(photos)
+  
   output$theMap <- renderPlot({
     ##################################
     # Draws map and creates a        #

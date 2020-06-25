@@ -11,7 +11,7 @@ check.photo.format <- function(filename){
   
   t.strsplit <- strsplit(filename, ".", fixed=T)
   suffix <- t.strsplit[[1]][2]
-  if (!is.na(suffix) & ((suffix=="JPG") | (suffix =="jpg") | (suffix == "HEIC"))) {
+  if (!is.na(suffix) & ((suffix=="JPG") | (suffix =="jpg") | (suffix == "HEIC") | (suffix == "heic"))) {
     output <- TRUE
   } else output <- FALSE
   #TODO: possible virus checks?
@@ -26,16 +26,60 @@ extract.exif.info <- function(filename){
   
   t.exif <- read_exif(filename)
   t.exif.names <- names(t.exif)
-  t.match <- match(c("GPSLatitude", "GPSLongitude"), t.exif.names)
-  if(length(t.match)==2){
-    if(!is.na(t.match[1]) & !is.na(t.match[2]))
-      geotagged.flag <- TRUE
-    else geotagged.flag <- FALSE
-  } else geotagged.flag <- FALSE
-  if(geotagged.flag){
+  t.matchCoords <- match(c("GPSLatitude", "GPSLongitude"), t.exif.names)
+  t.matchAltitude <- match("GPSAltitude", t.exif.names)
+  t.matchDateTime <- match("GPSDateTime", t.exif.names)
+  t.matchHeading <- match("GPSImgDirection", t.exif.names)
+  
+  #check that each data column exists
+  coords.flag <- FALSE
+  if(length(t.matchCoords)==2){
+    if(!is.na(t.matchCoords[1]) & !is.na(t.matchCoords[2]))
+      coords.flag <- TRUE
+  }
+  
+  altitude.flag <- FALSE
+  if(length(t.matchAltitude)==1){
+    if(!is.na(t.matchAltitude[1]))
+      altitude.flag <- TRUE
+  }
+  
+  dateTime.flag <- FALSE
+  if(length(t.matchDateTime)==1){
+    if(!is.na(t.matchDateTime[1]))
+      dateTime.flag <- TRUE
+  }
+  
+  heading.flag <- FALSE
+  if(length(t.matchHeading)==1){
+    if(!is.na(t.matchHeading[1]))
+      heading.flag <- TRUE
+  }
+
+  #append valid data structures to a df
+  if(coords.flag){
     output <- t.exif %>%
-      select("GPSLatitude", "GPSLongitude", "GPSAltitude", "GPSDateTime")
+      select("GPSLatitude", "GPSLongitude")
   } else output <- NULL
+  
+  if(altitude.flag){
+    o <- t.exif %>%
+      select("GPSAltitude")
+  } else o <- -1.0
+  output$GPSAltitude = o
+  
+  if(dateTime.flag){
+    o <- t.exif %>%
+      select("GPSDateTime")
+  } else o <- "0000:00:00 00:00:00z"
+  output$GPSDateTime = o
+  
+  if(heading.flag){
+    o <- t.exif %>%
+      select("GPSImgDirection")
+  } else o <- -1.0
+  output$GPSImgDirection = o
+  
   output
 }
 
@@ -70,6 +114,7 @@ readPhotoCoordinates <- function(path){
     if(t.names[i]=="GPSLatitude") t.matrix[,i] <- as.numeric(t.matrix[,i])
     if(t.names[i]=="GPSLongitude") t.matrix[,i] <- as.numeric(t.matrix[,i])
     if(t.names[i]=="GPSAltitude") t.matrix[,i] <- as.numeric(t.matrix[,i])
+    if(t.names[i]=="GPSImgDirection") t.matrix[,i] <- as.numeric(t.matrix[,i])
   }
   t.matrix$Name <- readPhotoNames(path)
   t.matrix
@@ -81,7 +126,7 @@ readPhotoNames <- function(path){
   # in '.jpg', '.JPG', or '.HEIC'.         #
   ##########################################
   
-  list.files(path, pattern = '((.*)(?i)\\.jpg)|(.*)\\.HEIC')
+  list.files(path, pattern = '(.*)(?i)(\\.jpg|\\.heic)')
 }
 
 photosInsideBoundingBox <- function(photos){
