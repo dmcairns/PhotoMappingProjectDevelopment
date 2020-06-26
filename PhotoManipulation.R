@@ -2,8 +2,6 @@
 #  Photo Manipulation Tools                   #
 ###############################################
 
-
-
 check.photo.format <- function(filename){
   ##########################################
   # Verify that the file is an image file  #
@@ -15,7 +13,7 @@ check.photo.format <- function(filename){
     output <- TRUE
   } else output <- FALSE
   #TODO: possible virus checks?
-  output
+  return(output)
 }
 
 extract.exif.info <- function(filename){
@@ -30,6 +28,7 @@ extract.exif.info <- function(filename){
   t.matchAltitude <- match("GPSAltitude", t.exif.names)
   t.matchDateTime <- match("GPSDateTime", t.exif.names)
   t.matchHeading <- match("GPSImgDirection", t.exif.names)
+  t.matchFOV <- match("FOV", t.exif.names)
   
   #check that each data column exists
   coords.flag <- FALSE
@@ -56,31 +55,43 @@ extract.exif.info <- function(filename){
       heading.flag <- TRUE
   }
 
+  fov.flag <- FALSE
+  if(length(t.matchFOV)==1){
+    if(!is.na(t.matchFOV[1]))
+      fov.flag <- TRUE
+  }
+  
   #append valid data structures to a df
   if(coords.flag){
     output <- t.exif %>%
       select("GPSLatitude", "GPSLongitude")
-  } else output <- NULL
+  } else output <- NA
   
   if(altitude.flag){
     o <- t.exif %>%
       select("GPSAltitude")
-  } else o <- -1.0
+  } else o <- NA
   output$GPSAltitude = o
   
   if(dateTime.flag){
     o <- t.exif %>%
       select("GPSDateTime")
-  } else o <- "0000:00:00 00:00:00z"
+  } else o <- NA
   output$GPSDateTime = o
   
   if(heading.flag){
     o <- t.exif %>%
       select("GPSImgDirection")
-  } else o <- -1.0
+  } else o <- NA
   output$GPSImgDirection = o
   
-  output
+  if(fov.flag){
+    o <- t.exif %>%
+      select("FOV")
+  } else o <- NA
+  output$FOV = o
+  
+  return(output)
 }
 
 readPhotoCoordinates <- function(path){
@@ -115,9 +126,10 @@ readPhotoCoordinates <- function(path){
     if(t.names[i]=="GPSLongitude") t.matrix[,i] <- as.numeric(t.matrix[,i])
     if(t.names[i]=="GPSAltitude") t.matrix[,i] <- as.numeric(t.matrix[,i])
     if(t.names[i]=="GPSImgDirection") t.matrix[,i] <- as.numeric(t.matrix[,i])
+    if(t.names[i]=="FOV") t.matrix[,i] <- as.numeric(t.matrix[,i])
   }
   t.matrix$Name <- readPhotoNames(path)
-  t.matrix
+  return(t.matrix)
 }
 
 readPhotoNames <- function(path){
@@ -126,7 +138,7 @@ readPhotoNames <- function(path){
   # in '.jpg', '.JPG', or '.HEIC'.         #
   ##########################################
   
-  list.files(path, pattern = '(.*)(?i)(\\.jpg|\\.heic)')
+  return(list.files(path, pattern = '(.*)(?i)(\\.jpg|\\.heic)'))
 }
 
 photosInsideBoundingBox <- function(photos){
@@ -141,5 +153,5 @@ photosInsideBoundingBox <- function(photos){
   photosIn <- photosIn %>%
     filter(GPSLatitude > globalValues$b.box[2] & GPSLatitude < globalValues$b.box[4])
   names <- photosIn$Name
-  names
+  return(names)
 }

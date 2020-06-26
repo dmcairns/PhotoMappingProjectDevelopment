@@ -11,7 +11,7 @@ sample.photos.random <- function(photo.coordinates, num.photos) {
   
   t.sample <- sample(c(1:dim(photo.coordinates)[1]), num.photos)
   sampled.photo.coordinates <- photo.coordinates[t.sample,]
-  sampled.photo.coordinates
+  return(sampled.photo.coordinates)
 }
 
 sample.photos.select <- function(photo.coordinates, photo.names){
@@ -22,7 +22,7 @@ sample.photos.select <- function(photo.coordinates, photo.names){
   
   sampled.photo.coordinates <- photo.coordinates%>%
     filter(Name %in% photo.names)
-  sampled.photo.coordinates
+  return(sampled.photo.coordinates)
 }
 
 create.bounding.box <- function(photo.coordinates, percentMargin){
@@ -56,7 +56,7 @@ create.bounding.box <- function(photo.coordinates, percentMargin){
     b[4] <- 89
   }
   globalValues$b.box <- b
-  b
+  return(b)
 }
 
 create.map <- function(photo.coordinates, bounding.box){
@@ -79,8 +79,11 @@ create.map <- function(photo.coordinates, bounding.box){
     if(!is.null(selectedPhoto.coordinates)){
       geom_point(shape = 19, color = "#4080FF", data = selectedPhoto.coordinates, aes(x = GPSLongitude, y = GPSLatitude))
     }
-  hs.map
+    #TODO: use geom_spoke to draw FOV of images
+  return(hs.map)
 }
+
+#calculation methods derived from formulas given here: https://www.movable-type.co.uk/scripts/latlong.html
 
 calc.distance <- function(coordinatesdblclick, coordinatesphoto){
   ##########################################
@@ -88,7 +91,7 @@ calc.distance <- function(coordinatesdblclick, coordinatesphoto){
   # distances between points.              #
   ##########################################
   
-  R <- 6371 #earth's radius in kilometers
+  R <- 6371 #earth's average radius in kilometers
   lon1 <- coordinatesdblclick$x * pi / 180
   lat1 <- coordinatesdblclick$y * pi / 180
   lon2 <- coordinatesphoto$GPSLongitude * pi / 180
@@ -98,5 +101,22 @@ calc.distance <- function(coordinatesdblclick, coordinatesphoto){
   a <- (sin(dlat / 2))^2 + cos(lat1) * cos(lat2) * (sin(dlon / 2))^2
   c <- 2 * atan2(sqrt(a), sqrt(1-a))
   d <- R * c
-  d
+  return(d)
+}
+
+calc.pointAtDistance <- function(coordinatesPoint, distance){
+  ##########################################
+  # Calculates a second point a given      #
+  # distance and heading away from a first #
+  # point.                                 #
+  ##########################################
+  
+  R <- 6371 #earth's average radius in kilometers
+  lon1 <- coordinatesPoint$GPSLongitude
+  lat1 <- coordinatesPoint$GPSLatitude
+  heading <- coordinatesPoint$GPSImgDirection
+  angularDistance <- distance / R
+  lat2 <- asin(sin(lat1) * cos(angularDistance) + cos(lat1) * sin(angularDistance) * cos(heading))
+  lon2 <- lon1 + atan2(sin(heading) * sin(angularDistance) * cos(lat1), cos(angularDistance) - sin(lat1) * sin(lat2))
+  return(c(lon2, lat2))
 }

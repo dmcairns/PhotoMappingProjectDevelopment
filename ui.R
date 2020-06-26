@@ -12,6 +12,10 @@ shinyUI(fluidPage(
   
   sidebarLayout(
     sidebarPanel(
+      sliderInput("viewDistance",
+                  "FOV Distance",
+                  0, 100, 50),
+      
       h4("Control Mode"),
       
       checkboxInput("userControlMap",

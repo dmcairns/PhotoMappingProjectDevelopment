@@ -74,7 +74,7 @@ shinyServer(function(input, output, session) {
     
     str_out <- function(e) {
       if(is.null(e)) return("NULL\n")
-      paste0(e, "\n")
+      paste0(e, "\n")              
     }
     
     selectedPhotos <- filter(photos, Name %in% input$checkedPhotos)
@@ -163,11 +163,10 @@ shinyServer(function(input, output, session) {
     
     selectedPhotos <- filter(photos, Name %in% input$checkedPhotos)
     
-    if(!is.null(globalValues$selectedPhoto)){
-      if(!is.null(photosInsideBoundingBox(photos))){
-        if(!(globalValues$selectedPhoto %in% photosInsideBoundingBox(photos))){
-          globalValues$selectedPhoto <- NULL
-        }
+    if(!is.null(globalValues$selectedPhoto) & !is.null(photosInsideBoundingBox(photos))){
+      if(!(globalValues$selectedPhoto %in% photosInsideBoundingBox(photos))){
+        globalValues$selectedPhoto <- NULL
+      } else {
         if(!is.null(selectedPhotos)){
           if(!(globalValues$selectedPhoto %in% selectedPhotos$Name)){
             globalValues$selectedPhoto <- NULL
@@ -192,7 +191,7 @@ shinyServer(function(input, output, session) {
       photosInside <- filter(photos, Name %in% photosInsideNames)
       photosInside$Distance <- calc.distance(fakeClick, photosInside)
       photosInside <- arrange(photosInside, Distance)
-      photosInside <- subset(photosInside, select = -c(GPSAltitude, GPSDateTime))
+      photosInside <- subset(photosInside, select = c(GPSLatitude, GPSLongitude, Name, Distance))
       globalValues$photoDistTable <- photosInside
     } else {
       globalValues$photoDistTable <- NULL
