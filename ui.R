@@ -16,7 +16,11 @@ shinyUI(fluidPage(
                   "FOV Distance",
                   0, 100, 50),
       
-      h4("Control Mode"),
+      h4("Control Modes"),
+      
+      checkboxInput("fovOn",
+                    "Draw FOV",
+                    value = FALSE),
       
       checkboxInput("userControlMap",
                     "User Defined Map",

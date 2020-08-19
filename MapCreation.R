@@ -59,7 +59,7 @@ create.bounding.box <- function(photo.coordinates, percentMargin){
   return(b)
 }
 
-create.map <- function(photo.coordinates, bounding.box){
+create.map <- function(photo.coordinates, bounding.box, fovDist, fovDraw){
   ##########################################
   #   Create a basemap using the photo     #
   #   coordinates.                         #
@@ -74,12 +74,34 @@ create.map <- function(photo.coordinates, bounding.box){
     photo.coordinates <- photo.coordinates %>%
       filter(Name != globalValues$selectedPhoto)
   }
+  photo.coordinates$fovLeft <- (photo.coordinates$GPSImgDirection - (photo.coordinates$FOV / 2)) %% 360
+  photo.coordinates$fovRight <- (photo.coordinates$GPSImgDirection + (photo.coordinates$FOV / 2)) %% 360
+  fovPosLeft <- calc.pointAtDistance(photo.coordinates, photo.coordinates$fovLeft, fovDist)
+  fovPosRight <- calc.pointAtDistance(photo.coordinates, photo.coordinates$fovRight, fovDist)
+  fovPosCenter <- calc.pointAtDistance(photo.coordinates, photo.coordinates$GPSImgDirection, fovDist)
+  dfDraw <- data.frame("Name" = photo.coordinates$Name,
+                       "Lon" = photo.coordinates$GPSLongitude,
+                       "Lat" = photo.coordinates$GPSLatitude,
+                       "FOVLeftLon" = fovPosLeft$lon,
+                       "FOVLeftLat" = fovPosLeft$lat,
+                       "FOVRightLon" = fovPosRight$lon,
+                       "FOVRightLat" = fovPosRight$lat,
+                       "FOVCenterLon" = fovPosCenter$lon,
+                       "FOVCenterLat" = fovPosCenter$lat,
+                       "FOV" = photo.coordinates$FOV)
+  assign("t.dfDraw", dfDraw, pos = 1)
   hs.map <- ggmap(get_map(location = bounding.box, zoom=3)) +
-    geom_point(shape = 19, color = '#FF0000', data = photo.coordinates, aes(x = GPSLongitude, y = GPSLatitude)) +
+    geom_point(shape = 19, color = "#FF0000", data = dfDraw, aes(x = Lon, y = Lat)) +
+    geom_segment(data = dfDraw, aes(x = FOVRightLon, y = FOVRightLat, xend = FOVCenterLon, yend = FOVCenterLat, color = "FF0000")) +
+    geom_segment(data = dfDraw, aes(x = FOVLeftLon, y = FOVLeftLat, xend = FOVCenterLon, yend = FOVCenterLat, color = "FF0000")) +
     if(!is.null(selectedPhoto.coordinates)){
       geom_point(shape = 19, color = "#4080FF", data = selectedPhoto.coordinates, aes(x = GPSLongitude, y = GPSLatitude))
     }
-    #TODO: use geom_spoke to draw FOV of images
+    #TODO: use geom_curve to draw FOV of images, since FOV is approx as circle use 
+    #      K=1/R to define the curvature ex: geom_curve(data = points, aes(x = x, y = y, xend = 
+    #      xend, yend = yend, color = "#FF0000"), curvature = 1/R). x, y, and R
+    #      will be givens and xend and yend will be computed using the
+    #      calc.pointAtDistance function
   return(hs.map)
 }
 
@@ -104,7 +126,7 @@ calc.distance <- function(coordinatesdblclick, coordinatesphoto){
   return(d)
 }
 
-calc.pointAtDistance <- function(coordinatesPoint, distance){
+calc.pointAtDistance <- function(coordinatesPoint, angle, distance){
   ##########################################
   # Calculates a second point a given      #
   # distance and heading away from a first #
@@ -112,11 +134,15 @@ calc.pointAtDistance <- function(coordinatesPoint, distance){
   ##########################################
   
   R <- 6371 #earth's average radius in kilometers
-  lon1 <- coordinatesPoint$GPSLongitude
-  lat1 <- coordinatesPoint$GPSLatitude
-  heading <- coordinatesPoint$GPSImgDirection
+  lon1 <- coordinatesPoint$GPSLongitude * pi / 180
+  lat1 <- coordinatesPoint$GPSLatitude * pi / 180
+  heading <- angle * pi / 180
   angularDistance <- distance / R
   lat2 <- asin(sin(lat1) * cos(angularDistance) + cos(lat1) * sin(angularDistance) * cos(heading))
   lon2 <- lon1 + atan2(sin(heading) * sin(angularDistance) * cos(lat1), cos(angularDistance) - sin(lat1) * sin(lat2))
-  return(c(lon2, lat2))
+  output <- NULL
+  output$name <- coordinatesPoint$Name
+  output$lat <- lat2 * 180 / pi
+  output$lon <- lon2 * 180 / pi
+  return(output)
 }

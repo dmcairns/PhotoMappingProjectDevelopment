@@ -25,7 +25,7 @@ shinyServer(function(input, output, session) {
       t.box <- create.bounding.box(t.sampled.photos, 2.5)
       globalValues$b.box <- t.box
     }
-    create.map(t.sampled.photos, bounding.box=globalValues$b.box)
+    create.map(t.sampled.photos, bounding.box=globalValues$b.box, input$viewDistance, input$fovOn)
   })
   
   output$info <- renderText({
