@@ -29,11 +29,11 @@ fovPolys <- SpatialPolygons(mapply(function(poly, id) {
 # Create SpatialPolygonsDataFrame (SPDF)
 fovPolysSPDF <- SpatialPolygonsDataFrame(fovPolys, data.frame(id=ID, row.names=ID))
 
-# Confert to sf data format
+# Convert to sf data format
 fovPolysSF <- st_as_sf(fovPolysSPDF)
 
 # Plot using base plotting tools
-plot(fovPolysSPDF, col=rainbow(50, alpha=0.5))
+#plot(fovPolysSPDF, col=rainbow(50, alpha=0.5))
 
 
 # Want to identify which photos have overlap.
@@ -133,12 +133,12 @@ ggplot(fovPolysSF.3) +
 
 
 
-b = st_sfc(st_point(c(0, 1)), st_point(c(1, 1))) # create 2 points
-b = st_buffer(b, dist = 1) # convert points to circles
-plot(b)
-text(x = c(-0.5, 1.5), y = 1, labels = c("x", "y")) # add text
-x = b[1]
-y = b[2]
-x_and_y = st_intersection(x, y)
-plot(b)
-plot(x_and_y, col = "lightgrey", add = TRUE) # color intersecting area
+# b = st_sfc(st_point(c(0, 1)), st_point(c(1, 1))) # create 2 points
+# b = st_buffer(b, dist = 1) # convert points to circles
+# plot(b)
+# text(x = c(-0.5, 1.5), y = 1, labels = c("x", "y")) # add text
+# x = b[1]
+# y = b[2]
+# x_and_y = st_intersection(x, y)
+# plot(b)
+# plot(x_and_y, col = "lightgrey", add = TRUE) # color intersecting area
