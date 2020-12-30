@@ -90,9 +90,16 @@ shinyServer(function(input, output, session) {
     )
   })
   
-  output$photoDistTable <- renderTable(globalValues$photoDistTable,
-                                       options = list(pageLength = 5))
+  #output$photoDistTable <- renderTable(globalValues$photoDistTable,
+  #                                     options = list(pageLength = 5))
   
+  output$photoDistTableDT <- renderDataTable(globalValues$photoDistTableDT)
+  
+  #output$photoOverlapTable <- renderTable(globalValues$photoOverlapTable,
+  #                                        options = list(pageLength = 5))
+  
+  output$photoOverlapTableDT <- renderDataTable(globalValues$photoOverlapTableDT)  
+    
   observeEvent(input$plot_dblclick, {
     ##################################
     # Create a new bounding box      #
@@ -179,7 +186,7 @@ shinyServer(function(input, output, session) {
   observe({
     ##################################
     # Updates table for photo        #
-    # distances.                     #
+    # distances/overlap.             #
     ##################################
     
     if(!is.null(globalValues$selectedPhoto)){
@@ -193,8 +200,14 @@ shinyServer(function(input, output, session) {
       photosInside <- arrange(photosInside, Distance)
       photosInside <- subset(photosInside, select = c(GPSLatitude, GPSLongitude, Name, Distance))
       globalValues$photoDistTable <- photosInside
+      globalValues$photoOverlapTable <- determineOverlaps(globalValues$selectedPhoto, fovPolysSF)
+      globalValues$photoDistTableDT <- datatable(globalValues$photoDistTable, rownames = FALSE)
+      globalValues$photoOverlapTableDT <- datatable(globalValues$photoOverlapTable, rownames = FALSE)
     } else {
       globalValues$photoDistTable <- NULL
+      globalValues$photoOverlapTable <- NULL
+      globalValues$photoDistTableDT <- NULL
+      globalValues$photoOverlapTableDT <- NULL
     }
   })
 })

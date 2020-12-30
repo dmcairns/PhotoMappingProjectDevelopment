@@ -70,9 +70,8 @@ create.map <- function(photo.coordinates, bounding.box, fovDist, fovDraw){
   if(!is.null(globalValues$selectedPhoto)){
     selectedPhoto.coordinates <- photo.coordinates %>%
       filter(Name == globalValues$selectedPhoto)
-    print(selectedPhoto.coordinates)
-    photo.coordinates <- photo.coordinates %>%
-      filter(Name != globalValues$selectedPhoto)
+    #photo.coordinates <- photo.coordinates %>%
+    #  filter(Name != globalValues$selectedPhoto)
   }
   photo.coordinates$fovLeft <- (photo.coordinates$GPSImgDirection - (photo.coordinates$FOV / 2)) %% 360
   photo.coordinates$fovRight <- (photo.coordinates$GPSImgDirection + (photo.coordinates$FOV / 2)) %% 360
@@ -90,18 +89,29 @@ create.map <- function(photo.coordinates, bounding.box, fovDist, fovDraw){
                        "FOVCenterLat" = fovPosCenter$lat,
                        "FOV" = photo.coordinates$FOV)
   assign("t.dfDraw", dfDraw, pos = 1)
-  hs.map <- ggmap(get_map(location = bounding.box, zoom=3)) +
-    geom_point(shape = 19, color = "#FF0000", data = dfDraw, aes(x = Lon, y = Lat)) +
-    geom_segment(data = dfDraw, aes(x = FOVRightLon, y = FOVRightLat, xend = FOVCenterLon, yend = FOVCenterLat, color = "FF0000")) +
-    geom_segment(data = dfDraw, aes(x = FOVLeftLon, y = FOVLeftLat, xend = FOVCenterLon, yend = FOVCenterLat, color = "FF0000")) +
+  if(fovDraw){
     if(!is.null(selectedPhoto.coordinates)){
-      geom_point(shape = 19, color = "#4080FF", data = selectedPhoto.coordinates, aes(x = GPSLongitude, y = GPSLatitude))
+      hs.map <- ggmap(get_map(location = bounding.box, zoom=3)) +
+        geom_point(shape = 19, color = "#FF0000", data = dfDraw, aes(x = Lon, y = Lat)) +
+        geom_segment(data = dfDraw, aes(x = FOVRightLon, y = FOVRightLat, xend = FOVCenterLon, yend = FOVCenterLat, color = "FF0000")) +
+        geom_segment(data = dfDraw, aes(x = FOVLeftLon, y = FOVLeftLat, xend = FOVCenterLon, yend = FOVCenterLat, color = "FF0000")) +
+        geom_point(shape = 19, color =  "#4080FF", data = selectedPhoto.coordinates, aes(x = GPSLongitude, y = GPSLatitude))
+    } else {
+      hs.map <- ggmap(get_map(location = bounding.box, zoom=3)) +
+        geom_point(shape = 19, color = "#FF0000", data = dfDraw, aes(x = Lon, y = Lat)) +
+        geom_segment(data = dfDraw, aes(x = FOVRightLon, y = FOVRightLat, xend = FOVCenterLon, yend = FOVCenterLat, color = "FF0000")) +
+        geom_segment(data = dfDraw, aes(x = FOVLeftLon, y = FOVLeftLat, xend = FOVCenterLon, yend = FOVCenterLat, color = "FF0000"))
     }
-    #TODO: use geom_curve to draw FOV of images, since FOV is approx as circle use 
-    #      K=1/R to define the curvature ex: geom_curve(data = points, aes(x = x, y = y, xend = 
-    #      xend, yend = yend, color = "#FF0000"), curvature = 1/R). x, y, and R
-    #      will be givens and xend and yend will be computed using the
-    #      calc.pointAtDistance function
+  } else {
+    if(!is.null(selectedPhoto.coordinates)){
+      hs.map <- ggmap(get_map(location = bounding.box, zoom=3)) +
+        geom_point(shape = 19, color = "#FF0000", data = dfDraw, aes(x = Lon, y = Lat)) +
+        geom_point(shape = 19, color = "#4080FF", data = selectedPhoto.coordinates, aes(x = GPSLongitude, y = GPSLatitude))
+    } else {
+      hs.map <- ggmap(get_map(location = bounding.box, zoom=3)) +
+        geom_point(shape = 19, color = "#FF0000", data = dfDraw, aes(x = Lon, y = Lat))
+    }
+  }
   return(hs.map)
 }
 

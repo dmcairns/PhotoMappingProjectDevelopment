@@ -11,7 +11,7 @@ shinyUI(fluidPage(
   h4(" "),
   
   sidebarLayout(
-    sidebarPanel(
+    sidebarPanel(style = "overflow-y:scroll; max-height: 580px; position:relative;",
       sliderInput("viewDistance",
                   "FOV Distance",
                   0, 100, 50),
@@ -38,7 +38,7 @@ shinyUI(fluidPage(
                          selected = readPhotoNames(directoryPath))
     ),
     
-    mainPanel(
+    mainPanel(style = "overflow-y:scroll; max-height: 580px; position:relative;",
       h1("Repeat Photography Database"),
       
       plotOutput("theMap",
@@ -53,7 +53,15 @@ shinyUI(fluidPage(
       
       h4("Photo Distances"),
       
-      tableOutput("photoDistTable")
+      #tableOutput("photoDistTable"),
+      
+      dataTableOutput("photoDistTableDT"),
+      
+      h4("Overlapping Images"),
+      
+      #tableOutput("photoOverlapTable"),
+      
+      dataTableOutput("photoOverlapTableDT")
     )
   )
 ))
