@@ -2,12 +2,12 @@
 #               Libraries                 #
 ###########################################
 
+library(dplyr)
+library(DT)
 library(exifr)
 library(ggplot2)
 library(ggmap)
 library(rgdal)
-library(dplyr)
-library(DT)
 
 ###########################################
 #              Source Files               #

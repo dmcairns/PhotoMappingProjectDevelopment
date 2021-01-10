@@ -53,13 +53,9 @@ shinyUI(fluidPage(
       
       h4("Photo Distances"),
       
-      #tableOutput("photoDistTable"),
-      
       dataTableOutput("photoDistTableDT"),
       
       h4("Overlapping Images"),
-      
-      #tableOutput("photoOverlapTable"),
       
       dataTableOutput("photoOverlapTableDT")
     )

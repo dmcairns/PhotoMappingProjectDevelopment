@@ -59,7 +59,10 @@ create.bounding.box <- function(photo.coordinates, percentMargin){
   return(b)
 }
 
-create.map <- function(photo.coordinates, bounding.box, fovDist, fovDraw){
+create.map <- function(photo.coordinates, bounding.box, fovDist, fovDraw, dfDrawOut){
+  #define dfDrawOut as pass by reference, see DataManagement.R for method
+  byRef(dfDrawOut)
+  
   ##########################################
   #   Create a basemap using the photo     #
   #   coordinates.                         #
@@ -70,8 +73,6 @@ create.map <- function(photo.coordinates, bounding.box, fovDist, fovDraw){
   if(!is.null(globalValues$selectedPhoto)){
     selectedPhoto.coordinates <- photo.coordinates %>%
       filter(Name == globalValues$selectedPhoto)
-    #photo.coordinates <- photo.coordinates %>%
-    #  filter(Name != globalValues$selectedPhoto)
   }
   photo.coordinates$fovLeft <- (photo.coordinates$GPSImgDirection - (photo.coordinates$FOV / 2)) %% 360
   photo.coordinates$fovRight <- (photo.coordinates$GPSImgDirection + (photo.coordinates$FOV / 2)) %% 360
@@ -88,7 +89,7 @@ create.map <- function(photo.coordinates, bounding.box, fovDist, fovDraw){
                        "FOVCenterLon" = fovPosCenter$lon,
                        "FOVCenterLat" = fovPosCenter$lat,
                        "FOV" = photo.coordinates$FOV)
-  assign("t.dfDraw", dfDraw, pos = 1)
+  dfDrawOut <- dfDraw
   if(fovDraw){
     if(!is.null(selectedPhoto.coordinates)){
       hs.map <- ggmap(get_map(location = bounding.box, zoom=3)) +

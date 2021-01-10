@@ -9,6 +9,7 @@ library(shiny)
 shinyServer(function(input, output, session) {
 
   photos <- readPhotoCoordinates(directoryPath)
+  dfDraw <- data.frame(matrix(ncol=0,nrow=0))
   
   print(photos)
   
@@ -25,7 +26,7 @@ shinyServer(function(input, output, session) {
       t.box <- create.bounding.box(t.sampled.photos, 2.5)
       globalValues$b.box <- t.box
     }
-    create.map(t.sampled.photos, bounding.box=globalValues$b.box, input$viewDistance, input$fovOn)
+    create.map(t.sampled.photos, bounding.box=globalValues$b.box, input$viewDistance, input$fovOn, dfDraw)
   })
   
   output$info <- renderText({
@@ -90,13 +91,7 @@ shinyServer(function(input, output, session) {
     )
   })
   
-  #output$photoDistTable <- renderTable(globalValues$photoDistTable,
-  #                                     options = list(pageLength = 5))
-  
   output$photoDistTableDT <- renderDataTable(globalValues$photoDistTableDT)
-  
-  #output$photoOverlapTable <- renderTable(globalValues$photoOverlapTable,
-  #                                        options = list(pageLength = 5))
   
   output$photoOverlapTableDT <- renderDataTable(globalValues$photoOverlapTableDT)  
     
@@ -199,8 +194,9 @@ shinyServer(function(input, output, session) {
       photosInside$Distance <- calc.distance(fakeClick, photosInside)
       photosInside <- arrange(photosInside, Distance)
       photosInside <- subset(photosInside, select = c(GPSLatitude, GPSLongitude, Name, Distance))
+      fovPolysSFTest <- createPolysSF(dfDraw)
       globalValues$photoDistTable <- photosInside
-      globalValues$photoOverlapTable <- determineOverlaps(globalValues$selectedPhoto, fovPolysSF)
+      globalValues$photoOverlapTable <- determineOverlaps(globalValues$selectedPhoto, fovPolysSFTest)
       globalValues$photoDistTableDT <- datatable(globalValues$photoDistTable, rownames = FALSE)
       globalValues$photoOverlapTableDT <- datatable(globalValues$photoOverlapTable, rownames = FALSE)
     } else {
