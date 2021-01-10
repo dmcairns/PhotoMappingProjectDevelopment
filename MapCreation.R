@@ -2,7 +2,6 @@
 #                Map Creation                 #
 ###############################################
 
-
 sample.photos.random <- function(photo.coordinates, num.photos) {
   ##########################################
   # Randomly sample the photos from the    #
@@ -55,7 +54,6 @@ create.bounding.box <- function(photo.coordinates, percentMargin){
   if(b[4] > 89){
     b[4] <- 89
   }
-  globalValues$b.box <- b
   return(b)
 }
 

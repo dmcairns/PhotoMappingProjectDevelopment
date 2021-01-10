@@ -61,5 +61,6 @@ determineOverlaps <- function(photoOfInterest, allPhotos){
     return(data.frame(image=fovSpatialJoin$id.y, pct.overlap=thePercentages))
   } else {
     print("NA Value For FOV of Selected Photo")
+    return(NULL)
   }
 }

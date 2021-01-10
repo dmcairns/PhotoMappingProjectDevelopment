@@ -1,4 +1,3 @@
-
 # This is the server logic for a Shiny web application.
 # You can find out more about building applications with Shiny here:
 #
@@ -23,10 +22,9 @@ shinyServer(function(input, output, session) {
     
     t.sampled.photos <- sample.photos.select(photos, input$checkedPhotos)
     if(!input$userControlMap){
-      t.box <- create.bounding.box(t.sampled.photos, 2.5)
-      globalValues$b.box <- t.box
+      globalValues$b.box <- create.bounding.box(t.sampled.photos, 2.5)
     }
-    create.map(t.sampled.photos, bounding.box=globalValues$b.box, input$viewDistance, input$fovOn, dfDraw)
+    create.map(t.sampled.photos, globalValues$b.box, input$viewDistance, input$fovOn, dfDraw)
   })
   
   output$info <- renderText({
@@ -81,19 +79,10 @@ shinyServer(function(input, output, session) {
     selectedPhotos <- filter(photos, Name %in% input$checkedPhotos)
     
     paste0(
-      c(#" click:", xy_str(input$plot_click),
-      #"dblclick:", xy_str(input$plot_dblclick),
-      " hover:", dms_str(input$plot_hover),
-      #"brush:", xy_range_str(input$plot_brush),
-      "selected photo:", str_out(globalValues$selectedPhoto),
-      "selected photos:", photosInsideBoundingBox(selectedPhotos),
-      "\n photos on map:", photosInsideBoundingBox(photos))
+      c(" hover:", dms_str(input$plot_hover),
+      "selected photo:", str_out(globalValues$selectedPhoto))
     )
   })
-  
-  output$photoDistTableDT <- renderDataTable(globalValues$photoDistTableDT)
-  
-  output$photoOverlapTableDT <- renderDataTable(globalValues$photoOverlapTableDT)  
     
   observeEvent(input$plot_dblclick, {
     ##################################
@@ -123,7 +112,7 @@ shinyServer(function(input, output, session) {
       selectedPhotos <- filter(photos, Name %in% input$checkedPhotos)
       updateCheckboxGroupInput(session,
                                "checkedPhotos",
-                               choices = readPhotoNames(directoryPath),
+                               choices = photosInsideBoundingBox(photos),
                                selected = photosInsideBoundingBox(selectedPhotos))
     } else {
       photosInside <- photosInsideBoundingBox(photos)
@@ -145,7 +134,7 @@ shinyServer(function(input, output, session) {
     if(input$userControlMap){
       updateCheckboxGroupInput(session,
                                "checkedPhotos",
-                               choices = readPhotoNames(directoryPath),
+                               choices = photosInsideBoundingBox(photos),
                                selected = if(input$selectAll) photosInsideBoundingBox(photos))
     } else {
       updateCheckboxGroupInput(session,
@@ -184,6 +173,7 @@ shinyServer(function(input, output, session) {
     # distances/overlap.             #
     ##################################
     
+    input$viewDistance
     if(!is.null(globalValues$selectedPhoto)){
       selectedPhoto <- filter(photos, Name %in% globalValues$selectedPhoto)
       selectedPhotos <- filter(photos, Name %in% input$checkedPhotos)
@@ -194,16 +184,19 @@ shinyServer(function(input, output, session) {
       photosInside$Distance <- calc.distance(fakeClick, photosInside)
       photosInside <- arrange(photosInside, Distance)
       photosInside <- subset(photosInside, select = c(GPSLatitude, GPSLongitude, Name, Distance))
-      fovPolysSFTest <- createPolysSF(dfDraw)
-      globalValues$photoDistTable <- photosInside
-      globalValues$photoOverlapTable <- determineOverlaps(globalValues$selectedPhoto, fovPolysSFTest)
-      globalValues$photoDistTableDT <- datatable(globalValues$photoDistTable, rownames = FALSE)
-      globalValues$photoOverlapTableDT <- datatable(globalValues$photoOverlapTable, rownames = FALSE)
+      dfDrawFiltered <- filter(dfDraw, Name %in% photosInsideNames)
+      fovPolysSFTest <- createPolysSF(dfDrawFiltered)
+      photoDistTable <- photosInside
+      photoOverlapTable <- determineOverlaps(globalValues$selectedPhoto, fovPolysSFTest)
+      photoDistTableDT <- datatable(photoDistTable, rownames = FALSE)
+      photoOverlapTableDT <- datatable(photoOverlapTable, rownames = FALSE)
     } else {
-      globalValues$photoDistTable <- NULL
-      globalValues$photoOverlapTable <- NULL
-      globalValues$photoDistTableDT <- NULL
-      globalValues$photoOverlapTableDT <- NULL
+      photoDistTable <- NULL
+      photoOverlapTable <- NULL
+      photoDistTableDT <- NULL
+      photoOverlapTableDT <- NULL
     }
+    output$photoDistTableDT <- renderDataTable(photoDistTableDT)
+    output$photoOverlapTableDT <- renderDataTable(photoOverlapTableDT)
   })
 })
