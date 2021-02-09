@@ -144,6 +144,22 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  observeEvent(globalValues$selectedPhoto, {
+    output$imageSelected <- renderImage({
+      filename <- normalizePath(file.path("Data", "Photos", globalValues$selectedPhoto))
+      print(filename)
+      list(src = filename)
+    }, deleteFile = FALSE)
+  })
+  
+  observeEvent(input$modalWindow, {
+    showModal(modalDialog(
+      title = "test",
+      plotOutput("imageSelected"),
+      easyClose = TRUE
+    ))
+  })
+  
   observe({
     ##################################
     # Deselects the selected photo   #

@@ -8,6 +8,7 @@ library(exifr)
 library(ggplot2)
 library(ggmap)
 library(rgdal)
+library(sf)
 
 ###########################################
 #              Source Files               #

@@ -9,7 +9,7 @@ shinyUI(fluidPage(
   h4(" "),
   
   sidebarLayout(
-    sidebarPanel(style = "overflow-y:scroll; max-height: 580px; position:relative;",
+    sidebarPanel(style = "overflow-y:scroll; max-height: 100vh; position:relative;",
       sliderInput("viewDistance",
                   "FOV Distance",
                   0, 100, 50),
@@ -36,7 +36,7 @@ shinyUI(fluidPage(
                          selected = readPhotoNames(directoryPath))
     ),
     
-    mainPanel(style = "overflow-y:scroll; max-height: 580px; position:relative;",
+    mainPanel(style = "overflow-y:scroll; max-height: 100vh; position:relative;",
       h1("Repeat Photography Database"),
       
       plotOutput("theMap",
@@ -44,6 +44,8 @@ shinyUI(fluidPage(
                  dblclick = "plot_dblclick",
                  hover = "plot_hover",
                  brush = "plot_brush"),
+      
+      actionButton("modalWindow", "Show modal window"),
       
       h4("Statistics"),
       
