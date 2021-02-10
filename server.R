@@ -144,18 +144,29 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  observeEvent(globalValues$selectedPhoto, {
-    output$imageSelected <- renderImage({
-      filename <- normalizePath(file.path("Data", "Photos", globalValues$selectedPhoto))
-      print(filename)
-      list(src = filename)
-    }, deleteFile = FALSE)
-  })
-  
   observeEvent(input$modalWindow, {
+    ##################################
+    # Creates a modal dialog with    #
+    # the selected image.           .#
+    ##################################
+    
+    if(!is.null(globalValues$selectedPhoto)){
+      filepath <- normalizePath(file.path("Data", "Photos", globalValues$selectedPhoto))
+      filepathWithLowerExt <- lowerExt(filepath)
+      rotateImage(filepathWithLowerExt)
+    }
+    
+    output$imageSelected <- renderImage({
+      width  <- session$clientData$output_imageSelected_width
+      height <- session$clientData$output_imageSelected_height
+      list(width = width,
+           height = height,
+           src = filepathWithLowerExt)
+    }, deleteFile = TRUE)
+    
     showModal(modalDialog(
-      title = "test",
-      plotOutput("imageSelected"),
+      title = globalValues$selectedPhoto,
+      imageOutput("imageSelected"),
       easyClose = TRUE
     ))
   })

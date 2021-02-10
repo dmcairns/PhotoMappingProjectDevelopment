@@ -30,7 +30,6 @@ extract.exif.info <- function(filename){
   t.matchHeading <- match("GPSImgDirection", t.exif.names)
   t.matchFOV <- match("FOV", t.exif.names)
   
-  #check that each data column exists
   coords.flag <- FALSE
   if(length(t.matchCoords)==2){
     if(!is.na(t.matchCoords[1]) & !is.na(t.matchCoords[2]))
@@ -61,7 +60,6 @@ extract.exif.info <- function(filename){
       fov.flag <- TRUE
   }
   
-  #append valid data structures to a df
   if(coords.flag){
     output <- t.exif %>%
       select("GPSLatitude", "GPSLongitude")
@@ -154,4 +152,35 @@ photosInsideBoundingBox <- function(photos){
     filter(GPSLatitude > globalValues$b.box[2] & GPSLatitude < globalValues$b.box[4])
   names <- photosIn$Name
   return(names)
+}
+
+rotateImage <- function(path){
+  image <- readImage(path)
+  orientation <- read_exif(path, tags="Orientation")
+  switch(orientation[[2]] - 1,
+         two = {
+           image <- flipImage(image, mode = 'horizontal')
+         },
+         three = {
+           image <- rotateFixed(image, 180)
+         },
+         four = {
+           image <- rotateFixed(image, 180)
+           image <- flipImage(image, mode = 'horizontal')
+         },
+         five = {
+           image <- rotateFixed(image, 90)
+           image <- flipImage(image, mode = 'horizontal')
+         },
+         six = {
+           image <- rotateFixed(image, 90)
+         },
+         seven = {
+           image <- rotateFixed(image, 270)
+           image <- flipImage(image, mode = 'horizontal')
+         },
+         eight = {
+           image <- rotateFixed(image, 270)
+         })
+  writeImage(image, path)
 }

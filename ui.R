@@ -45,7 +45,7 @@ shinyUI(fluidPage(
                  hover = "plot_hover",
                  brush = "plot_brush"),
       
-      actionButton("modalWindow", "Show modal window"),
+      actionButton("modalWindow", "View Selected Photo"),
       
       h4("Statistics"),
       

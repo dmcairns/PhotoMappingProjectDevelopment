@@ -2,9 +2,15 @@
 #     Data Management Tools                   #
 ###############################################
 
-#function to create pass by reference variables
-#originally posted by codeola at https://stackoverflow.com/questions/2603184/can-you-pass-by-reference-in-r
+
 byRef <- function(..., envir=parent.frame(), inherits=TRUE) {
+  ###############################
+  # Function to create pass by  #
+  # reference variables. (cool!)#
+  ###############################
+  
+  #originally posted by codeola at https://stackoverflow.com/questions/2603184/can-you-pass-by-reference-in-r
+  
   cl <- match.call(expand.dots = TRUE)
   cl[c(1, match(c("envir", "inherits"), names(cl), 0L))] <- NULL
   for (x in as.list(cl)) {
@@ -14,4 +20,19 @@ byRef <- function(..., envir=parent.frame(), inherits=TRUE) {
     expr <- substitute(assign(dx, s, envir=parent.frame(), inherits=inherits))
     do.call(on.exit, list(expr, add=TRUE), envir=envir)
   }
+}
+
+lowerExt <- function(filename){
+  ###############################
+  # Function to make the file   #
+  # extension lower case,       #
+  # required for image          #
+  # manipulation with           #
+  # OpenImageR.                 #
+  ###############################
+  
+  extension <- regmatches(filename, regexpr("[^.]*$", filename))
+  filenameWithLowerExt <- paste(substr(filename, 1, nchar(filename) - nchar(extension) - 1), "L.", tolower(extension), sep = "")
+  file.copy(filename, filenameWithLowerExt)
+  return(filenameWithLowerExt)
 }
