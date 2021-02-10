@@ -183,4 +183,9 @@ rotateImage <- function(path){
            image <- rotateFixed(image, 270)
          })
   writeImage(image, path)
+  switchWidthHeight <- FALSE
+  if(4 < (orientation[[2]] - 1)){
+    switchWidthHeight <- TRUE
+  }
+  return(switchWidthHeight)
 }

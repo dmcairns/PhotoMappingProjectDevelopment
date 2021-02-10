@@ -83,7 +83,7 @@ shinyServer(function(input, output, session) {
       "selected photo:", str_out(globalValues$selectedPhoto))
     )
   })
-    
+  
   observeEvent(input$plot_dblclick, {
     ##################################
     # Create a new bounding box      #
@@ -144,6 +144,16 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  observeEvent(globalValues$selectedPhoto, {
+    ##################################
+    # Renders the selected photo     #
+    # whenever the selected photo    #
+    # changes.                       #
+    ##################################
+    
+    
+  })
+  
   observeEvent(input$modalWindow, {
     ##################################
     # Creates a modal dialog with    #
@@ -152,15 +162,21 @@ shinyServer(function(input, output, session) {
     
     if(!is.null(globalValues$selectedPhoto)){
       filepath <- normalizePath(file.path("Data", "Photos", globalValues$selectedPhoto))
-      filepathWithLowerExt <- lowerExt(filepath)
-      rotateImage(filepathWithLowerExt)
+    } else {
+      filepath <- normalizePath(file.path("Data", "Other", "placeholder.jpg"))
+    }
+    filepathWithLowerExt <- lowerExt(filepath)
+    switchWidthHeight <- rotateImage(filepathWithLowerExt)
+    w  <- session$clientData$output_imageSelected_width
+    h <- session$clientData$output_imageSelected_height
+    if(switchWidthHeight){
+      w  <- session$clientData$output_imageSelected_height
+      h <- session$clientData$output_imageSelected_width
     }
     
     output$imageSelected <- renderImage({
-      width  <- session$clientData$output_imageSelected_width
-      height <- session$clientData$output_imageSelected_height
-      list(width = width,
-           height = height,
+      list(width = w,
+           height = h,
            src = filepathWithLowerExt)
     }, deleteFile = TRUE)
     
