@@ -155,37 +155,37 @@ photosInsideBoundingBox <- function(photos){
 }
 
 rotateImage <- function(path){
-  image <- readImage(path)
+  im <- readImage(path)
   orientation <- read_exif(path, tags="Orientation")
   switch(orientation[[2]] - 1,
          two = {
-           image <- flipImage(image, mode = 'horizontal')
+           im <- flipImage(im, mode = 'horizontal')
          },
          three = {
-           image <- rotateFixed(image, 180)
+           im <- rotateFixed(im, 180)
          },
          four = {
-           image <- rotateFixed(image, 180)
-           image <- flipImage(image, mode = 'horizontal')
+           im <- rotateFixed(im, 180)
+           im <- flipImage(im, mode = 'horizontal')
          },
          five = {
-           image <- rotateFixed(image, 90)
-           image <- flipImage(image, mode = 'horizontal')
+           im <- rotateFixed(im, 90)
+           im <- flipImage(im, mode = 'horizontal')
          },
          six = {
-           image <- rotateFixed(image, 90)
+           im <- rotateFixed(im, 90)
          },
          seven = {
-           image <- rotateFixed(image, 270)
-           image <- flipImage(image, mode = 'horizontal')
+           im <- rotateFixed(im, 270)
+           im <- flipImage(im, mode = 'horizontal')
          },
          eight = {
-           image <- rotateFixed(image, 270)
+           im <- rotateFixed(im, 270)
          })
-  writeImage(image, path)
+  writeImage(im, path)
   switchWidthHeight <- FALSE
   if(4 < (orientation[[2]] - 1)){
     switchWidthHeight <- TRUE
   }
-  return(switchWidthHeight)
+  return(dim(im))
 }

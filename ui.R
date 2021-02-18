@@ -45,6 +45,11 @@ shinyUI(fluidPage(
                  hover = "plot_hover",
                  brush = "plot_brush"),
       
+      tags$style(
+        type = 'text/css',
+        '#imageOut .modal-dialog {width:500px; height:400px}'
+      ),
+      
       actionButton("modalWindow", "View Selected Photo"),
       
       h4("Statistics"),
