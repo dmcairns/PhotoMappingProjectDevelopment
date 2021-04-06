@@ -21,18 +21,3 @@ byRef <- function(..., envir=parent.frame(), inherits=TRUE) {
     do.call(on.exit, list(expr, add=TRUE), envir=envir)
   }
 }
-
-lowerExt <- function(filename){
-  ###############################
-  # Function to make the file   #
-  # extension lower case,       #
-  # required for image          #
-  # manipulation with           #
-  # OpenImageR.                 #
-  ###############################
-  
-  extension <- regmatches(filename, regexpr("[^.]*$", filename))
-  filenameWithLowerExt <- paste(substr(filename, 1, nchar(filename) - nchar(extension) - 1), "L.", tolower(extension), sep = "")
-  file.copy(filename, filenameWithLowerExt)
-  return(filenameWithLowerExt)
-}

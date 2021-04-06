@@ -6,6 +6,7 @@ library(DT)
 library(exifr)
 library(ggplot2)
 library(ggmap)
+library(magick)
 library(OpenImageR)
 library(rgdal)
 

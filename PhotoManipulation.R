@@ -183,9 +183,20 @@ rotateImage <- function(path){
            im <- rotateFixed(im, 270)
          })
   writeImage(im, path)
-  switchWidthHeight <- FALSE
-  if(4 < (orientation[[2]] - 1)){
-    switchWidthHeight <- TRUE
-  }
   return(dim(im))
+}
+
+convertJPG <- function(filename){
+  ###############################
+  # Converts an image to JPG    #
+  # to then be used by          #
+  # OpenImageR; returns the     #
+  # filepath.                   #
+  ###############################
+  
+  extension <- regmatches(filename, regexpr("[^.]*$", filename))
+  filenameWithJPGExt <- paste(substr(filename, 1, nchar(filename) - nchar(extension) - 1), "jpg.", "jpg", sep = "")
+  image <- image_read(filename)
+  image_write(image, path = filenameWithJPGExt, format = "jpg")
+  return(filenameWithJPGExt)
 }

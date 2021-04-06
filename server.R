@@ -157,12 +157,12 @@ shinyServer(function(input, output, session) {
     } else {
       filepath <- normalizePath(file.path("Data", "Other", "placeholder.jpg"))
     }
-    filepathWithLowerExt <- lowerExt(filepath)
-    widthHeight <- rotateImage(filepathWithLowerExt)
+    jpgFilepath <- convertJPG(filepath)
+    widthHeight <- rotateImage(jpgFilepath)
     w <- widthHeight[[2]]
     h <- widthHeight[[1]]
     mw <- 467
-    mh <- 420
+    mh <- 400
     if((h * mw) > (w * mh)){
       w <- w * mh / h
       h <- mh
@@ -174,7 +174,7 @@ shinyServer(function(input, output, session) {
     output$imageSelected <- renderImage({
       list(width = w,
            height = h,
-           src = filepathWithLowerExt)
+           src = jpgFilepath)
     }, deleteFile = TRUE)
     
     showModal(div(id = "imageOut", modalDialog(
@@ -186,6 +186,11 @@ shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$tableClickUpdate, {
+    ##################################
+    # Logic controling the selection #
+    # of the second photo.           #
+    ##################################
+    
     if(!is.null(globalValues$selectedPhoto2) && globalValues$selectedPhoto2 == input$tableClickText){
       globalValues$selectedPhoto2 <- NULL
     } else {
