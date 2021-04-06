@@ -4,8 +4,11 @@
 # http://shiny.rstudio.com
 
 library(shiny)
+library(shinyjs)
 
 shinyUI(fluidPage(
+  useShinyjs(),
+  
   h4(" "),
   
   sidebarLayout(
@@ -50,19 +53,31 @@ shinyUI(fluidPage(
         '#imageOut .modal-dialog {width:500px; height:400px}'
       ),
       
-      actionButton("modalWindow", "View Selected Photo"),
+      actionButton("modalWindow", "View Selected Photos"),
       
       h4("Statistics"),
       
       verbatimTextOutput("info"),
       
-      h4("Photo Distances"),
-      
-      dataTableOutput("photoDistTableDT"),
-      
-      h4("Overlapping Images"),
-      
-      dataTableOutput("photoOverlapTableDT")
+      tagList(
+        h4("Photo Distances"),
+        
+        dataTableOutput("photoDistTableDT"),
+        
+        h4("Overlapping Images"),
+        
+        dataTableOutput("photoOverlapTableDT"),
+        
+        tags$script(paste0("$(document).on('click', '#photoDistTableDT td', function(){
+                                           Shiny.onInputChange('tableClickText', this.textContent);
+                                           Shiny.onInputChange('tableClickUpdate', Math.random());
+                                       });")),
+        
+        tags$script(paste0("$(document).on('click', '#photoOverlapTableDT td', function(){
+                                           Shiny.onInputChange('tableClickText', this.textContent);
+                                           Shiny.onInputChange('tableClickUpdate', Math.random());
+                                       });"))
+      )
     )
   )
 ))
