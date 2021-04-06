@@ -23,5 +23,5 @@ source("gisFunctions.R")
 #            Global Variables             #
 ###########################################
 
-globalValues <- reactiveValues(b.box = NULL, selectedPhoto = NULL, selectedPhoto2 = NULL)
+globalValues <- reactiveValues(b.box = NULL, selectedPhotos = NULL, selectedPhoto2 = NULL)
 directoryPath <- ".//Data//Photos//"

@@ -149,40 +149,67 @@ shinyServer(function(input, output, session) {
   observeEvent(input$modalWindow, {
     ##################################
     # Creates a modal dialog with    #
-    # the selected image.           .#
+    # the selected images.           #
     ##################################
     
     if(!is.null(globalValues$selectedPhoto)){
-      filepath <- normalizePath(file.path("Data", "Photos", globalValues$selectedPhoto))
+      mw <- 217
+      mh <- 400
+      filepaths <- array(1:2)
+      hw <- array(1:4)
+      
+      filepaths[1] <- normalizePath(file.path("Data", "Photos", globalValues$selectedPhoto))
+      
+      if(!is.null(globalValues$selectedPhoto2)){
+        filepaths[2] <- normalizePath(file.path("Data", "Photos", globalValues$selectedPhoto2))
+      } else {
+        filepaths[2] <- normalizePath(file.path("Data", "Other", "placeholder.jpg"))
+      }
+      
+      for(i in 1:2){
+        filepaths[i] <- convertJPG(filepaths[i])
+        d <- rotateImage(filepaths[i])
+        h <- d[[1]]
+        w <- d[[2]]
+        if((h * mw) > (w * mh)){
+          hw[2 * i] <- w * mh / h
+          hw[2 * i - 1] <- mh
+        } else {
+          hw[2 * i - 1] <- h * mw / w
+          hw[2 * i] <- mw
+        }
+      }
+      
+      output$imageSelected <- renderImage({
+        list(width = hw[2],
+             height = hw[1],
+             src = filepaths[1])
+      }, deleteFile = TRUE)
+      
+      output$imageSelected2 <- renderImage({
+        list(width = hw[4],
+             height = hw[3],
+             src = filepaths[2])
+      }, deleteFile = TRUE)
+      
+      modalTitle <- globalValues$selectedPhoto
+      if(!is.null(globalValues$selectedPhoto2)){
+        modalTitle <- paste(modalTitle, "and", globalValues$selectedPhoto2, sep = " ")
+      }
+      
+      showModal(div(id = "imageOut", modalDialog(
+        fluidRow(column(6, imageOutput("imageSelected")),
+                 column(6, imageOutput("imageSelected2"))),
+        title = modalTitle,
+        easyClose = TRUE
+      )))
     } else {
-      filepath <- normalizePath(file.path("Data", "Other", "placeholder.jpg"))
+      showModal(modalDialog(
+        "You must select an image.",
+        title = "Warning:",
+        easyClose = TRUE
+      ))
     }
-    jpgFilepath <- convertJPG(filepath)
-    widthHeight <- rotateImage(jpgFilepath)
-    w <- widthHeight[[2]]
-    h <- widthHeight[[1]]
-    mw <- 467
-    mh <- 400
-    if((h * mw) > (w * mh)){
-      w <- w * mh / h
-      h <- mh
-    } else {
-      h <- h * mw / w
-      w <- mw
-    }
-    
-    output$imageSelected <- renderImage({
-      list(width = w,
-           height = h,
-           src = jpgFilepath)
-    }, deleteFile = TRUE)
-    
-    showModal(div(id = "imageOut", modalDialog(
-      title = globalValues$selectedPhoto,
-      imageOutput("imageSelected"),
-      easyClose = TRUE
-    )))
-    
   })
   
   observeEvent(input$tableClickUpdate, {
@@ -194,7 +221,9 @@ shinyServer(function(input, output, session) {
     if(!is.null(globalValues$selectedPhoto2) && globalValues$selectedPhoto2 == input$tableClickText){
       globalValues$selectedPhoto2 <- NULL
     } else {
-      globalValues$selectedPhoto2 <- input$tableClickText
+      if(input$tableClickText %in% photosInsideBoundingBox(photos)){
+        globalValues$selectedPhoto2 <- input$tableClickText
+      }
     }
   })
   

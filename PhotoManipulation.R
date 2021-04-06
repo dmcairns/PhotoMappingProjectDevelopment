@@ -196,7 +196,6 @@ convertJPG <- function(filename){
   
   extension <- regmatches(filename, regexpr("[^.]*$", filename))
   filenameWithJPGExt <- paste(substr(filename, 1, nchar(filename) - nchar(extension) - 1), "jpg.", "jpg", sep = "")
-  image <- image_read(filename)
-  image_write(image, path = filenameWithJPGExt, format = "jpg")
+  image_write(image_read(filename), path = filenameWithJPGExt, format = "jpg")
   return(filenameWithJPGExt)
 }
