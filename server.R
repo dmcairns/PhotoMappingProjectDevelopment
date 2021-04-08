@@ -65,23 +65,16 @@ shinyServer(function(input, output, session) {
       paste0(dy, "°", my, "'", sy, "\"", yChar, " ", dx, "°", mx, "'", sx, "\"", xChar, "\n")
     }
     
-    xy_range_str <- function(e) {
-      if(is.null(e)) return("NULL\n")
-      paste0("xmin=", round(e$xmin, 2), " xmax=", round(e$xmax, 2), 
-             " ymin=", round(e$ymin, 2), " ymax=", round(e$ymax, 2), "\n")
-    }
-    
     str_out <- function(e) {
       if(is.null(e)) return("NULL\n")
       paste0(e, "\n")              
     }
     
-    selectedPhotos <- filter(photos, Name %in% input$checkedPhotos)
-    
     paste0(
       c(" hover coordinates:", dms_str(input$plot_hover),
       "selected photo 1:", str_out(globalValues$selectedPhoto),
-      "selected photo 2:", str_out(globalValues$selectedPhoto2))
+      "selected photo 2:", str_out(globalValues$selectedPhoto2),
+      "warnings:", tail(warnings(), 1))
     )
   })
   
@@ -153,17 +146,19 @@ shinyServer(function(input, output, session) {
     ##################################
     
     if(!is.null(globalValues$selectedPhoto)){
-      mw <- 217
-      mh <- 400
+      mw <- 215
+      mh <- 200
       filepaths <- array(1:2)
       hw <- array(1:4)
+      placeholderimg2 <- FALSE
       
       filepaths[1] <- normalizePath(file.path("Data", "Photos", globalValues$selectedPhoto))
       
-      if(!is.null(globalValues$selectedPhoto2)){
+      if(!is.null(globalValues$selectedPhoto2) && globalValues$selectedPhoto != globalValues$selectedPhoto2){
         filepaths[2] <- normalizePath(file.path("Data", "Photos", globalValues$selectedPhoto2))
       } else {
         filepaths[2] <- normalizePath(file.path("Data", "Other", "placeholder.jpg"))
+        placeholderimg2 <- TRUE
       }
       
       for(i in 1:2){
@@ -178,6 +173,10 @@ shinyServer(function(input, output, session) {
           hw[2 * i - 1] <- h * mw / w
           hw[2 * i] <- mw
         }
+      }
+      
+      if(!placeholderimg2){
+        print(stitch(filepaths, getStitchPath(filepaths)))
       }
       
       output$imageSelected <- renderImage({
@@ -200,6 +199,7 @@ shinyServer(function(input, output, session) {
       showModal(div(id = "imageOut", modalDialog(
         fluidRow(column(6, imageOutput("imageSelected")),
                  column(6, imageOutput("imageSelected2"))),
+        #fluidRow(column(12, imageOutput("imageStitched"))),
         title = modalTitle,
         easyClose = TRUE
       )))

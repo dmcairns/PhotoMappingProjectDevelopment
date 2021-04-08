@@ -8,6 +8,7 @@ library(ggplot2)
 library(ggmap)
 library(magick)
 library(OpenImageR)
+library(reticulate)
 library(rgdal)
 
 ###########################################

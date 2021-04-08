@@ -199,3 +199,16 @@ convertJPG <- function(filename){
   image_write(image_read(filename), path = filenameWithJPGExt, format = "jpg")
   return(filenameWithJPGExt)
 }
+
+getStitchPath <- function(jpgFilepaths){
+  for(i in 1:2){
+    jpgFilepaths[i] <- paste(substr(jpgFilepaths[i], 1, nchar(jpgFilepaths[i]) - 7))
+    jpgFilepaths[i] <- regmatches(jpgFilepaths[i], regexpr("[^\\]+$", jpgFilepaths[i]))
+  }
+  return(paste(normalizePath(file.path("Data", "Panoramas")), "\\", jpgFilepaths[1], "-", jpgFilepaths[2], ".jpg", sep=""))
+}
+
+stitch <- function(jpgFilepaths, outputJPGPath){
+  source_python("stitch.py")
+  stitchImages(jpgFilepaths, outputJPGPath)
+}
