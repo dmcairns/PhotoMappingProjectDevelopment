@@ -205,7 +205,7 @@ getStitchPath <- function(jpgFilepaths){
     jpgFilepaths[i] <- paste(substr(jpgFilepaths[i], 1, nchar(jpgFilepaths[i]) - 7))
     jpgFilepaths[i] <- regmatches(jpgFilepaths[i], regexpr("[^\\]+$", jpgFilepaths[i]))
   }
-  return(paste(normalizePath(file.path("Data", "Panoramas")), "\\", jpgFilepaths[1], "-", jpgFilepaths[2], ".jpg", sep=""))
+  return(paste(normalizePath(file.path("Data", "Panoramas")), "\\", jpgFilepaths[1], "-", jpgFilepaths[2], "jpg.jpg", sep=""))
 }
 
 stitch <- function(jpgFilepaths, outputJPGPath){

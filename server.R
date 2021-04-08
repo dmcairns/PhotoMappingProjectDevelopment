@@ -6,7 +6,7 @@
 library(shiny)
 
 shinyServer(function(input, output, session) {
-
+  
   photos <- readPhotoCoordinates(directoryPath)
   dfDraw <- data.frame(matrix(ncol=0,nrow=0))
   
@@ -176,8 +176,9 @@ shinyServer(function(input, output, session) {
       }
       
       if(!placeholderimg2){
-        print(stitch(filepaths, getStitchPath(filepaths)))
+        stitchError <- stitch(filepaths, getStitchPath(filepaths))
       }
+      print(stitchError)
       
       output$imageSelected <- renderImage({
         list(width = hw[2],
