@@ -74,7 +74,7 @@ shinyServer(function(input, output, session) {
       c(" hover coordinates:", dms_str(input$plot_hover),
       "selected photo 1:", str_out(globalValues$selectedPhoto),
       "selected photo 2:", str_out(globalValues$selectedPhoto2),
-      "warnings:", tail(warnings(), 1))
+      "warnings:")
     )
   })
   
@@ -147,7 +147,7 @@ shinyServer(function(input, output, session) {
     
     if(!is.null(globalValues$selectedPhoto)){
       mw <- 215
-      mh <- 200
+      mh <- 400
       filepaths <- array(1:2)
       hw <- array(1:4)
       placeholderimg2 <- FALSE
@@ -166,19 +166,32 @@ shinyServer(function(input, output, session) {
         d <- rotateImage(filepaths[i])
         h <- d[[1]]
         w <- d[[2]]
-        if((h * mw) > (w * mh)){
-          hw[2 * i] <- w * mh / h
-          hw[2 * i - 1] <- mh
-        } else {
-          hw[2 * i - 1] <- h * mw / w
-          hw[2 * i] <- mw
-        }
+        getNewDims(h, w, mh, mw)
+        hw[2 * i - 1] <- h
+        hw[2 * i] <- w
       }
       
       if(!placeholderimg2){
-        stitchError <- stitch(filepaths, getStitchPath(filepaths))
+        stitchedImagePath <- getStitchPath(filepaths)
+        stitchErrorCode <- stitch(filepaths, stitchedImagePath)
+        if(stitchErrorCode != 0){
+          stitchedImagePath <- normalizePath(file.path("Data", "Other", "placeholder.jpg"))
+        }
+      } else {
+        stitchedImagePath <- normalizePath(file.path("Data", "Other", "placeholder.jpg"))
       }
-      print(stitchError)
+      
+      d <- dim(readImage(stitchedImagePath))
+      mw <- 467
+      h <- d[[1]]
+      w <- d[[2]]
+      getNewDims(h, w, mh, mw)
+      
+      output$imageStitched <- renderImage({
+        list(width = w,
+             height = h,
+             src = stitchedImagePath)
+      }, deleteFile = FALSE)
       
       output$imageSelected <- renderImage({
         list(width = hw[2],
@@ -198,9 +211,11 @@ shinyServer(function(input, output, session) {
       }
       
       showModal(div(id = "imageOut", modalDialog(
-        fluidRow(column(6, imageOutput("imageSelected")),
-                 column(6, imageOutput("imageSelected2"))),
-        #fluidRow(column(12, imageOutput("imageStitched"))),
+        fillPage(fluidRow(class = "row1",
+                          column(6, imageOutput("imageSelected")),
+                          column(6, imageOutput("imageSelected2"))),
+                 fluidRow(class = "row2",
+                          column(12, imageOutput("imageStitched")))),
         title = modalTitle,
         easyClose = TRUE
       )))
@@ -215,16 +230,29 @@ shinyServer(function(input, output, session) {
   
   observeEvent(input$tableClickUpdate, {
     ##################################
-    # Logic controling the selection #
-    # of the second photo.           #
+    # Logic controlling the          #
+    # selection of the second photo  #
+    # using a single click.          #
     ##################################
     
     if(!is.null(globalValues$selectedPhoto2) && globalValues$selectedPhoto2 == input$tableClickText){
       globalValues$selectedPhoto2 <- NULL
-    } else {
-      if(input$tableClickText %in% photosInsideBoundingBox(photos)){
+    } else if(input$tableClickText %in% photosInsideBoundingBox(photos)){
         globalValues$selectedPhoto2 <- input$tableClickText
-      }
+    }
+  })
+  
+  observeEvent(input$tableDblclickUpdate, {
+    ##################################
+    # Logic controlling the          #
+    # selection of the second photo  #
+    # using a double click.          #
+    ##################################
+    
+    if(globalValues$selectedPhoto == input$tableClickText){
+      globalValues$selectedPhoto <- NULL
+    } else if(input$tableClickText %in% photosInsideBoundingBox(photos)){
+      globalValues$selectedPhoto <- input$tableClickText      
     }
   })
   

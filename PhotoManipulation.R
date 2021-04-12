@@ -154,6 +154,16 @@ photosInsideBoundingBox <- function(photos){
   return(names)
 }
 
+getNewDims <- function(h, w, mh, mw){
+  byRef(h, w)
+  if((h * mw) > (w * mh)){
+    w <- w * mh / h
+    h <- mh
+  } else {
+    h <- h * mw / w
+    w <- mw
+  }
+}
 rotateImage <- function(path){
   im <- readImage(path)
   orientation <- read_exif(path, tags="Orientation")

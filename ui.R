@@ -76,7 +76,17 @@ shinyUI(fluidPage(
         tags$script(paste0("$(document).on('click', '#photoOverlapTableDT td', function(){
                                            Shiny.onInputChange('tableClickText', this.textContent);
                                            Shiny.onInputChange('tableClickUpdate', Math.random());
-                                       });"))
+                                       });")),
+        
+        tags$script(paste0("$(document).on('dblclick', '#photoDistTableDT td', function(){
+                                           Shiny.onInputChange('tableClickText', this.textContent);
+                                           Shiny.onInputChange('tableDblclickUpdate', Math.random());
+                                       })")),
+        
+        tags$script(paste0("$(document).on('dblclick', '#photoOverlapTableDT td', function(){
+                                           Shiny.onInputChange('tableClickText', this.textContent);
+                                           Shiny.onInputChange('tableDblclickUpdate', Math.random());
+                                       })"))
       )
     )
   )
