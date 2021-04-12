@@ -157,11 +157,11 @@ photosInsideBoundingBox <- function(photos){
 getNewDims <- function(h, w, mh, mw){
   byRef(h, w)
   if((h * mw) > (w * mh)){
-    w <- w * mh / h
-    h <- mh
+    w <- "auto"
+    h <- "100%"
   } else {
-    h <- h * mw / w
-    w <- mw
+    h <- "auto"
+    w <- "100%"
   }
 }
 rotateImage <- function(path){

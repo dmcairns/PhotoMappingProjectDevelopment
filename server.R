@@ -146,30 +146,41 @@ shinyServer(function(input, output, session) {
     ##################################
     
     if(!is.null(globalValues$selectedPhoto)){
-      mw <- 215
-      mh <- 400
       filepaths <- array(1:2)
-      hw <- array(1:4)
+      
+      filepaths[1] <- convertJPG(normalizePath(file.path("Data", "Photos", globalValues$selectedPhoto)))
+      
       placeholderimg2 <- FALSE
-      
-      filepaths[1] <- normalizePath(file.path("Data", "Photos", globalValues$selectedPhoto))
-      
       if(!is.null(globalValues$selectedPhoto2) && globalValues$selectedPhoto != globalValues$selectedPhoto2){
-        filepaths[2] <- normalizePath(file.path("Data", "Photos", globalValues$selectedPhoto2))
+        filepaths[2] <- convertJPG(normalizePath(file.path("Data", "Photos", globalValues$selectedPhoto2)))
       } else {
-        filepaths[2] <- normalizePath(file.path("Data", "Other", "placeholder.jpg"))
+        filepaths[2] <- convertJPG(normalizePath(file.path("Data", "Other", "placeholder.jpg")))
         placeholderimg2 <- TRUE
       }
       
-      for(i in 1:2){
-        filepaths[i] <- convertJPG(filepaths[i])
-        d <- rotateImage(filepaths[i])
+      output$imageSelected <- renderImage({
+        d <- rotateImage(filepaths[1])
         h <- d[[1]]
         w <- d[[2]]
+        mh <- session$clientData$output_imageSelected_height
+        mw <- session$clientData$output_imageSelected_width
         getNewDims(h, w, mh, mw)
-        hw[2 * i - 1] <- h
-        hw[2 * i] <- w
-      }
+        list(width = w,
+             height = h,
+             src = filepaths[1])
+      }, deleteFile = TRUE)
+      
+      output$imageSelected2 <- renderImage({
+        d <- rotateImage(filepaths[2])
+        h <- d[[1]]
+        w <- d[[2]]
+        mh <- session$clientData$output_imageSelected_height
+        mw <- session$clientData$output_imageSelected_width
+        getNewDims(h, w, mh, mw)
+        list(width = w,
+             height = h,
+             src = filepaths[2])
+      }, deleteFile = TRUE)
       
       if(!placeholderimg2){
         stitchedImagePath <- getStitchPath(filepaths)
@@ -181,44 +192,43 @@ shinyServer(function(input, output, session) {
         stitchedImagePath <- normalizePath(file.path("Data", "Other", "placeholder.jpg"))
       }
       
-      d <- dim(readImage(stitchedImagePath))
-      mw <- 467
-      h <- d[[1]]
-      w <- d[[2]]
-      getNewDims(h, w, mh, mw)
-      
       output$imageStitched <- renderImage({
+        d <- dim(readImage(stitchedImagePath))
+        h <- d[[1]]
+        w <- d[[2]]
+        mh <- session$clientData$output_imageStitched_height
+        mw <- session$clientData$output_imageStitched_width
+        getNewDims(h, w, mh, mw)
         list(width = w,
              height = h,
              src = stitchedImagePath)
       }, deleteFile = FALSE)
-      
-      output$imageSelected <- renderImage({
-        list(width = hw[2],
-             height = hw[1],
-             src = filepaths[1])
-      }, deleteFile = TRUE)
-      
-      output$imageSelected2 <- renderImage({
-        list(width = hw[4],
-             height = hw[3],
-             src = filepaths[2])
-      }, deleteFile = TRUE)
       
       modalTitle <- globalValues$selectedPhoto
       if(!is.null(globalValues$selectedPhoto2)){
         modalTitle <- paste(modalTitle, "and", globalValues$selectedPhoto2, sep = " ")
       }
       
-      showModal(div(id = "imageOut", modalDialog(
-        fillPage(fluidRow(class = "row1",
-                          column(6, imageOutput("imageSelected")),
-                          column(6, imageOutput("imageSelected2"))),
-                 fluidRow(class = "row2",
-                          column(12, imageOutput("imageStitched")))),
+      showModal(modalDialog(
+        fluidRow(class = "row1",
+                 column(6, div(imageOutput("imageSelected",
+                                           width = "100%",
+                                           height = "200px"),
+                               style = "text-align:center;")),
+                 column(6, div(imageOutput("imageSelected2",
+                                           width = "100%",
+                                           height = "200px"),
+                               style = "text-align:center;"))),
+        fluidRow(class = "row2",
+                 column(12, div(imageOutput("imageStitched",
+                                            width = "100%",
+                                            height = "400px"),
+                                style = "text-align:center;"))),
+        tags$head(tags$style(".row1{height:225px;}
+                              .row2{height:400px;}")),
         title = modalTitle,
         easyClose = TRUE
-      )))
+      ))
     } else {
       showModal(modalDialog(
         "You must select an image.",
