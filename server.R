@@ -73,8 +73,7 @@ shinyServer(function(input, output, session) {
     paste0(
       c(" hover coordinates:", dms_str(input$plot_hover),
       "selected photo 1:", str_out(globalValues$selectedPhoto),
-      "selected photo 2:", str_out(globalValues$selectedPhoto2),
-      "warnings:")
+      "selected photo 2:", str_out(globalValues$selectedPhoto2))
     )
   })
   
@@ -139,6 +138,17 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  observeEvent(input$inputFile, {
+    fileIn <- input$inputFile
+    if(!is.null(fileIn)){
+      file.copy(fileIn$datapath, normalizePath(file.path("Data", "Photos", fileIn$name)))
+      photos <- readPhotoCoordinates(directoryPath)
+      updateCheckboxGroupInput(session,
+                               "checkedPhotos",
+                               choices = photosInsideBoundingBox(photos))
+    }
+  })
+  
   observeEvent(input$modalWindow, {
     ##################################
     # Creates a modal dialog with    #
@@ -174,8 +184,8 @@ shinyServer(function(input, output, session) {
         d <- rotateImage(filepaths[2])
         h <- d[[1]]
         w <- d[[2]]
-        mh <- session$clientData$output_imageSelected_height
-        mw <- session$clientData$output_imageSelected_width
+        mh <- session$clientData$output_imageSelected2_height
+        mw <- session$clientData$output_imageSelected2_width
         getNewDims(h, w, mh, mw)
         list(width = w,
              height = h,

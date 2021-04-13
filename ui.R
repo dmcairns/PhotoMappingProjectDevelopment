@@ -17,7 +17,7 @@ shinyUI(fluidPage(
                   "FOV Distance",
                   0, 100, 50),
       
-      h4("Control Modes"),
+      h4("Control Modes:"),
       
       checkboxInput("fovOn",
                     "Draw FOV",
@@ -27,7 +27,9 @@ shinyUI(fluidPage(
                     "User Defined Map",
                     value = FALSE),
       
-      h4("Photos"),
+      h4("Photos:"),
+      
+      fileInput("inputFile", "Upload image to working directory:", accept = c('image/jpg', 'image/heic', 'image/png')),
       
       checkboxInput("selectAll",
                     "Select All",
@@ -48,10 +50,8 @@ shinyUI(fluidPage(
                  hover = "plot_hover",
                  brush = "plot_brush"),
       
-      tags$style(
-        type = 'text/css',
-        '#imageOut .modal-dialog {width:500px; height:400px}'
-      ),
+      tags$style(type = 'text/css',
+                 '#imageOut .modal-dialog {width:500px; height:400px}'),
       
       actionButton("modalWindow", "View Selected Photos"),
       
