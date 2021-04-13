@@ -145,7 +145,8 @@ shinyServer(function(input, output, session) {
       photos <- readPhotoCoordinates(directoryPath)
       updateCheckboxGroupInput(session,
                                "checkedPhotos",
-                               choices = photosInsideBoundingBox(photos))
+                               choices = photosInsideBoundingBox(photos),
+                               checked = input$checkedPhotos)
     }
   })
   
