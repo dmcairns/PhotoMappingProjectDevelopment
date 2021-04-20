@@ -139,6 +139,8 @@ shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$inputFile, {
+    # add comment
+    
     fileIn <- input$inputFile
     if(!is.null(fileIn)){
       file.copy(fileIn$datapath, normalizePath(file.path("Data", "Photos", fileIn$name)))
@@ -323,15 +325,23 @@ shinyServer(function(input, output, session) {
       fovPolysSFTest <- createPolysSF(dfDrawFiltered)
       photoDistTable <- photosInside
       photoOverlapTable <- determineOverlaps(globalValues$selectedPhoto, fovPolysSFTest)
-      photoDistTableDT <- datatable(photoDistTable[c(3, 1, 2, 4)], rownames = FALSE)
-      photoOverlapTableDT <- datatable(photoOverlapTable, rownames = FALSE)
+      distNames <- photoDistTable$Name
+      overlapNames <- photoOverlapTable$image
+      overlapCol <- c()
+      for(name in distNames){
+        if(name %in% overlapNames){
+          overlapCol <- c(overlapCol, photoOverlapTable[which(photoOverlapTable$image == name), ]$pct.overlap[[1]])
+        } else {
+          overlapCol <- c(overlapCol, 0)
+        }
+      }
+      photoDistTable$Overlap <- overlapCol
+      photoDistTableDT <- datatable(photoDistTable[c(3, 1, 2, 4, 5)], rownames = FALSE)
     } else {
       photoDistTable <- NULL
       photoOverlapTable <- NULL
       photoDistTableDT <- NULL
-      photoOverlapTableDT <- NULL
     }
     output$photoDistTableDT <- renderDataTable(photoDistTableDT)
-    output$photoOverlapTableDT <- renderDataTable(photoOverlapTableDT)
   })
 })

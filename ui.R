@@ -13,11 +13,11 @@ shinyUI(fluidPage(
   
   sidebarLayout(
     sidebarPanel(style = "overflow-y:scroll; max-height: 100vh; position:relative;",
+      h4("Control:"),
+      
       sliderInput("viewDistance",
                   "FOV Distance",
-                  0, 100, 50),
-      
-      h4("Control Modes:"),
+                  0, 100, 10),
       
       checkboxInput("fovOn",
                     "Draw FOV",
@@ -26,6 +26,8 @@ shinyUI(fluidPage(
       checkboxInput("userControlMap",
                     "User Defined Map",
                     value = FALSE),
+      
+      hr(),
       
       h4("Photos:"),
       
@@ -50,30 +52,18 @@ shinyUI(fluidPage(
                  hover = "plot_hover",
                  brush = "plot_brush"),
       
-      tags$style(type = 'text/css',
-                 '#imageOut .modal-dialog {width:500px; height:400px}'),
+      verbatimTextOutput("info"),
+      
+      hr(),
       
       actionButton("modalWindow", "View Selected Photos"),
       
-      h4("Statistics"),
+      h3(""),
+        
+      dataTableOutput("photoDistTableDT"),
       
-      verbatimTextOutput("info"),
-      
-      tagList(
-        h4("Photo Distances"),
-        
-        dataTableOutput("photoDistTableDT"),
-        
-        h4("Overlapping Images"),
-        
-        dataTableOutput("photoOverlapTableDT"),
-        
+      tagList(  
         tags$script(paste0("$(document).on('click', '#photoDistTableDT td', function(){
-                                           Shiny.onInputChange('tableClickText', this.textContent);
-                                           Shiny.onInputChange('tableClickUpdate', Math.random());
-                                       });")),
-        
-        tags$script(paste0("$(document).on('click', '#photoOverlapTableDT td', function(){
                                            Shiny.onInputChange('tableClickText', this.textContent);
                                            Shiny.onInputChange('tableClickUpdate', Math.random());
                                        });")),
@@ -82,11 +72,6 @@ shinyUI(fluidPage(
                                            Shiny.onInputChange('tableClickText', this.textContent);
                                            Shiny.onInputChange('tableDblclickUpdate', Math.random());
                                        })")),
-        
-        tags$script(paste0("$(document).on('dblclick', '#photoOverlapTableDT td', function(){
-                                           Shiny.onInputChange('tableClickText', this.textContent);
-                                           Shiny.onInputChange('tableDblclickUpdate', Math.random());
-                                       })"))
       )
     )
   )
