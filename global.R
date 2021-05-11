@@ -2,7 +2,6 @@
 #               Libraries                 #
 ###########################################
 
-library(dplyr)
 library(DT)
 library(exifr)
 library(ggplot2)
@@ -23,5 +22,5 @@ source("gisFunctions.R")
 #            Global Variables             #
 ###########################################
 
-globalValues <- reactiveValues(b.box = NULL, selectedPhoto = NULL)
+globalValues <- reactiveValues(b.box = NULL, selectedPhotos = NULL, selectedPhoto2 = NULL)
 directoryPath <- ".//Data//Photos//"

@@ -6,7 +6,7 @@
 library(shiny)
 
 shinyServer(function(input, output, session) {
-
+  
   photos <- readPhotoCoordinates(directoryPath)
   dfDraw <- data.frame(matrix(ncol=0,nrow=0))
   
@@ -65,25 +65,18 @@ shinyServer(function(input, output, session) {
       paste0(dy, "°", my, "'", sy, "\"", yChar, " ", dx, "°", mx, "'", sx, "\"", xChar, "\n")
     }
     
-    xy_range_str <- function(e) {
-      if(is.null(e)) return("NULL\n")
-      paste0("xmin=", round(e$xmin, 2), " xmax=", round(e$xmax, 2), 
-             " ymin=", round(e$ymin, 2), " ymax=", round(e$ymax, 2), "\n")
-    }
-    
     str_out <- function(e) {
       if(is.null(e)) return("NULL\n")
       paste0(e, "\n")              
     }
     
-    selectedPhotos <- filter(photos, Name %in% input$checkedPhotos)
-    
     paste0(
-      c(" hover:", dms_str(input$plot_hover),
-      "selected photo:", str_out(globalValues$selectedPhoto))
+      c(" hover coordinates:", dms_str(input$plot_hover),
+      "selected photo 1:", str_out(globalValues$selectedPhoto),
+      "selected photo 2:", str_out(globalValues$selectedPhoto2))
     )
   })
-    
+  
   observeEvent(input$plot_dblclick, {
     ##################################
     # Create a new bounding box      #
@@ -122,6 +115,7 @@ shinyServer(function(input, output, session) {
       photosIn <- arrange(photosIn, distance)
       photosIn <- head(photosIn, 1)
       globalValues$selectedPhoto <- photosIn$Name
+      globalValues$selectedPhoto2 <- NULL
     }
   })
   
@@ -167,10 +161,12 @@ shinyServer(function(input, output, session) {
     if(!is.null(globalValues$selectedPhoto) & !is.null(photosInsideBoundingBox(photos))){
       if(!(globalValues$selectedPhoto %in% photosInsideBoundingBox(photos))){
         globalValues$selectedPhoto <- NULL
+        globalValues$selectedPhoto2 <- NULL
       } else {
         if(!is.null(selectedPhotos)){
           if(!(globalValues$selectedPhoto %in% selectedPhotos$Name)){
             globalValues$selectedPhoto <- NULL
+            globalValues$selectedPhoto2 <- NULL
           }
         }
       }
@@ -198,15 +194,23 @@ shinyServer(function(input, output, session) {
       fovPolysSFTest <- createPolysSF(dfDrawFiltered)
       photoDistTable <- photosInside
       photoOverlapTable <- determineOverlaps(globalValues$selectedPhoto, fovPolysSFTest)
-      photoDistTableDT <- datatable(photoDistTable, rownames = FALSE)
-      photoOverlapTableDT <- datatable(photoOverlapTable, rownames = FALSE)
+      distNames <- photoDistTable$Name
+      overlapNames <- photoOverlapTable$image
+      overlapCol <- c()
+      for(name in distNames){
+        if(name %in% overlapNames){
+          overlapCol <- c(overlapCol, photoOverlapTable[which(photoOverlapTable$image == name), ]$pct.overlap[[1]])
+        } else {
+          overlapCol <- c(overlapCol, 0)
+        }
+      }
+      photoDistTable$Overlap <- overlapCol
+      photoDistTableDT <- datatable(photoDistTable[c(3, 1, 2, 4, 5)], rownames = FALSE)
     } else {
       photoDistTable <- NULL
       photoOverlapTable <- NULL
       photoDistTableDT <- NULL
-      photoOverlapTableDT <- NULL
     }
     output$photoDistTableDT <- renderDataTable(photoDistTableDT)
-    output$photoOverlapTableDT <- renderDataTable(photoOverlapTableDT)
   })
 })

@@ -9,11 +9,7 @@ check.photo.format <- function(filename){
   
   t.strsplit <- strsplit(filename, ".", fixed=T)
   suffix <- t.strsplit[[1]][2]
-  if (!is.na(suffix) & ((suffix=="JPG") | (suffix =="jpg") | (suffix == "HEIC") | (suffix == "heic"))) {
-    output <- TRUE
-  } else output <- FALSE
-  #TODO: possible virus checks?
-  return(output)
+  return((!is.na(suffix) & ((suffix=="JPG") | (suffix =="jpg") | (suffix == "HEIC") | (suffix == "heic") | (suffix == "PNG") | (suffix == "png"))))
 }
 
 extract.exif.info <- function(filename){
@@ -30,66 +26,34 @@ extract.exif.info <- function(filename){
   t.matchHeading <- match("GPSImgDirection", t.exif.names)
   t.matchFOV <- match("FOV", t.exif.names)
   
-  #check that each data column exists
-  coords.flag <- FALSE
-  if(length(t.matchCoords)==2){
-    if(!is.na(t.matchCoords[1]) & !is.na(t.matchCoords[2]))
-      coords.flag <- TRUE
-  }
-  
-  altitude.flag <- FALSE
-  if(length(t.matchAltitude)==1){
-    if(!is.na(t.matchAltitude[1]))
-      altitude.flag <- TRUE
-  }
-  
-  dateTime.flag <- FALSE
-  if(length(t.matchDateTime)==1){
-    if(!is.na(t.matchDateTime[1]))
-      dateTime.flag <- TRUE
-  }
-  
-  heading.flag <- FALSE
-  if(length(t.matchHeading)==1){
-    if(!is.na(t.matchHeading[1]))
-      heading.flag <- TRUE
-  }
-
-  fov.flag <- FALSE
-  if(length(t.matchFOV)==1){
-    if(!is.na(t.matchFOV[1]))
-      fov.flag <- TRUE
-  }
-  
-  #append valid data structures to a df
-  if(coords.flag){
+  if(!is.na(t.matchCoords[1]) && !is.na(t.matchCoords[2])){
     output <- t.exif %>%
       select("GPSLatitude", "GPSLongitude")
-  } else output <- NA
+  } else output <- data.frame(GPSLatitude = c(NA), GPSLongitude = c(NA))
   
-  if(altitude.flag){
+  if(!is.na(t.matchAltitude[1])){
     o <- t.exif %>%
       select("GPSAltitude")
   } else o <- NA
-  output$GPSAltitude = o
+  output$GPSAltitude <- o
   
-  if(dateTime.flag){
+  if(!is.na(t.matchDateTime[1])){
     o <- t.exif %>%
       select("GPSDateTime")
   } else o <- NA
-  output$GPSDateTime = o
+  output$GPSDateTime <- o
   
-  if(heading.flag){
+  if(!is.na(t.matchHeading[1])){
     o <- t.exif %>%
       select("GPSImgDirection")
   } else o <- NA
-  output$GPSImgDirection = o
+  output$GPSImgDirection <- o
   
-  if(fov.flag){
+  if(!is.na(t.matchFOV[1])){
     o <- t.exif %>%
       select("FOV")
   } else o <- NA
-  output$FOV = o
+  output$FOV <- o
   
   return(output)
 }
@@ -138,7 +102,7 @@ readPhotoNames <- function(path){
   # in '.jpg', '.JPG', or '.HEIC'.         #
   ##########################################
   
-  return(list.files(path, pattern = '(.*)(?i)(\\.jpg|\\.heic)'))
+  return(list.files(path, pattern = '.*(\\.(?i)(jpg|heic|png))$'))
 }
 
 photosInsideBoundingBox <- function(photos){
@@ -154,4 +118,73 @@ photosInsideBoundingBox <- function(photos){
     filter(GPSLatitude > globalValues$b.box[2] & GPSLatitude < globalValues$b.box[4])
   names <- photosIn$Name
   return(names)
+}
+
+getNewDims <- function(h, w, mh, mw){
+  byRef(h, w)
+  if((h * mw) > (w * mh)){
+    w <- "auto"
+    h <- "100%"
+  } else {
+    h <- "auto"
+    w <- "100%"
+  }
+}
+rotateImage <- function(path){
+  im <- readImage(path)
+  orientation <- read_exif(path, tags="Orientation")
+  switch(orientation[[2]] - 1,
+         two = {
+           im <- flipImage(im, mode = 'horizontal')
+         },
+         three = {
+           im <- rotateFixed(im, 180)
+         },
+         four = {
+           im <- rotateFixed(im, 180)
+           im <- flipImage(im, mode = 'horizontal')
+         },
+         five = {
+           im <- rotateFixed(im, 90)
+           im <- flipImage(im, mode = 'horizontal')
+         },
+         six = {
+           im <- rotateFixed(im, 90)
+         },
+         seven = {
+           im <- rotateFixed(im, 270)
+           im <- flipImage(im, mode = 'horizontal')
+         },
+         eight = {
+           im <- rotateFixed(im, 270)
+         })
+  writeImage(im, path)
+  return(dim(im))
+}
+
+convertJPG <- function(filename){
+  ###############################
+  # Converts an image to JPG    #
+  # to then be used by          #
+  # OpenImageR; returns the     #
+  # filepath.                   #
+  ###############################
+  
+  extension <- regmatches(filename, regexpr("[^.]*$", filename))
+  filenameWithJPGExt <- paste(substr(filename, 1, nchar(filename) - nchar(extension) - 1), "jpg.", "jpg", sep = "")
+  image_write(image_read(filename), path = filenameWithJPGExt, format = "jpg")
+  return(filenameWithJPGExt)
+}
+
+getStitchPath <- function(jpgFilepaths){
+  for(i in 1:2){
+    jpgFilepaths[i] <- paste(substr(jpgFilepaths[i], 1, nchar(jpgFilepaths[i]) - 7))
+    jpgFilepaths[i] <- regmatches(jpgFilepaths[i], regexpr("[^\\]+$", jpgFilepaths[i]))
+  }
+  return(paste(normalizePath(file.path("Data", "Panoramas")), "\\", jpgFilepaths[1], "-", jpgFilepaths[2], "jpg.jpg", sep=""))
+}
+
+stitch <- function(jpgFilepaths, outputJPGPath){
+  source_python("stitch.py")
+  stitchImages(jpgFilepaths, outputJPGPath)
 }

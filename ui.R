@@ -4,17 +4,20 @@
 # http://shiny.rstudio.com
 
 library(shiny)
+library(shinyjs)
 
 shinyUI(fluidPage(
+  useShinyjs(),
+  
   h4(" "),
   
   sidebarLayout(
-    sidebarPanel(style = "overflow-y:scroll; max-height: 580px; position:relative;",
+    sidebarPanel(style = "overflow-y:scroll; max-height: 100vh; position:relative;",
+      h4("Control:"),
+      
       sliderInput("viewDistance",
                   "FOV Distance",
-                  0, 100, 50),
-      
-      h4("Control Modes"),
+                  0, 100, 10),
       
       checkboxInput("fovOn",
                     "Draw FOV",
@@ -24,7 +27,11 @@ shinyUI(fluidPage(
                     "User Defined Map",
                     value = FALSE),
       
-      h4("Photos"),
+      hr(),
+      
+      h4("Photos:"),
+      
+      fileInput("inputFile", "Upload image to working directory:", accept = c('image/jpg', 'image/heic', 'image/png')),
       
       checkboxInput("selectAll",
                     "Select All",
@@ -36,7 +43,7 @@ shinyUI(fluidPage(
                          selected = readPhotoNames(directoryPath))
     ),
     
-    mainPanel(style = "overflow-y:scroll; max-height: 580px; position:relative;",
+    mainPanel(style = "overflow-y:scroll; max-height: 100vh; position:relative;",
       h1("Repeat Photography Database"),
       
       plotOutput("theMap",
@@ -51,13 +58,25 @@ shinyUI(fluidPage(
       
       verbatimTextOutput("info"),
       
-      h4("Photo Distances"),
+      hr(),
       
+      actionButton("modalWindow", "View Selected Photos"),
+      
+      h3(""),
+        
       dataTableOutput("photoDistTableDT"),
       
-      h4("Overlapping Images"),
-      
-      dataTableOutput("photoOverlapTableDT")
+      tagList(  
+        tags$script(paste0("$(document).on('click', '#photoDistTableDT td', function(){
+                                           Shiny.onInputChange('tableClickText', this.textContent);
+                                           Shiny.onInputChange('tableClickUpdate', Math.random());
+                                       });")),
+        
+        tags$script(paste0("$(document).on('dblclick', '#photoDistTableDT td', function(){
+                                           Shiny.onInputChange('tableClickText', this.textContent);
+                                           Shiny.onInputChange('tableDblclickUpdate', Math.random());
+                                       })")),
+      )
     )
   )
 ))
