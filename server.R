@@ -144,6 +144,16 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  observeEvent(input$modalWindow, {
+    imgPath <- normalizePath(file.path("Data", "Photos", globalValues$selectedPhoto))
+    showModal(modalDialog(
+      title = "Test",
+      HTML('<img src="http://www.google.nl/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png">'),
+      easyClose = TRUE,
+      footer = NULL
+    ))
+  })
+  
   observe({
     ##################################
     # Deselects the selected photo   #

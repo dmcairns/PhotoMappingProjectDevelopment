@@ -7,6 +7,7 @@ library(DT)
 library(exifr)
 library(ggplot2)
 library(ggmap)
+#library(imager)
 library(rgdal)
 
 ###########################################

@@ -45,6 +45,8 @@ shinyUI(fluidPage(
                  hover = "plot_hover",
                  brush = "plot_brush"),
       
+      actionButton("modalWindow", "Show modal dialog"),
+      
       h4("Statistics"),
       
       verbatimTextOutput("info"),
