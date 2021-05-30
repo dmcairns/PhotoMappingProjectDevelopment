@@ -66,50 +66,30 @@ def matchKPs(filepaths):
 
     return(kpMatches, fileOutNames)
 
-def createHeatMap(kpSetLeft, kpSetRight, imgPath):
+def createHeatMap(kpSetLeft, kpSetRight, imgPath, threads):
     img = Image.open(imgPath)
     width, height = img.size
-    maxDist = math.dist([0, 0], [width, height])
-    npHeatMap = np.zeros((height, width))
-    for r in range(height):
-        print(r, "/", height)
-        for c in range(width):
-            sum = 0
-            for kp in kpSetLeft:
-                sum += 1 - math.dist([c, r], [kp.pt[0], kp.pt[1]]) / maxDist
-            for kp in kpSetRight:
-                sum -= 1 - math.dist([c, r], [kp.pt[0], kp.pt[1]]) / maxDist
-            npHeatMap[r, c] = sum
-    return(npHeatMap)
-
-def createHeatMapMT(kpSetLeft, kpSetRight, imgPath):
-    img = Image.open(imgPath)
-    width, height = img.size
-
     kpL = List()
     kpR = List()
     [kpL.append(List([kp.pt[0], kp.pt[1]])) for kp in kpSetLeft]
     [kpR.append(List([kp.pt[0], kp.pt[1]])) for kp in kpSetRight]
-
     maxDist = math.dist([0, 0], [width, height])
-    npHeatMap = [[[x, y] for x in range(width)] for y in range(height)]
+    typedHeatMapRow = List()
+    [typedHeatMapRow.append(c) for c in range(width)]
+    npHeatMap = [typedHeatMapRow for y in range(height)]
+    njitCreateHeatMapHelper = njit(createHeatMapHelper, nogil = True)
     for r in range(height):
         print(r, "/", height)
-        typedHeatMapRow = List()
-        for c in npHeatMap[r]:
-            typedHeatMapRowC = List()
-            [typedHeatMapRowC.append(element) for element in c]
-            typedHeatMapRow.append(typedHeatMapRowC)
-        with Pool(32) as pool:
-            npHeatMap[r] = pool.map(functools.partial(njit(createHeatMapMTHelper, nogil = True), kpL = kpL, kpR = kpR, mD = maxDist), typedHeatMapRow)
+        with Pool(threads) as pool:
+            npHeatMap[r] = pool.map(functools.partial(njitCreateHeatMapHelper, row = r, kpL = kpL, kpR = kpR, mD = maxDist), npHeatMap[r])
     return (np.asarray(npHeatMap))
 
-def createHeatMapMTHelper(coords, kpL, kpR, mD):
+def createHeatMapHelper(column, row, kpL, kpR, mD):
     sum = 0
     for kp in kpL:
-        sum += 1 - math.sqrt((coords[0] - kp[0]) ** 2 + (coords[1] - kp[1]) ** 2) / mD
+        sum += 1 - math.sqrt((column - kp[0]) ** 2 + (row - kp[1]) ** 2) / mD
     for kp in kpR:
-        sum -= 1 - math.sqrt((coords[0] - kp[0]) ** 2 + (coords[1] - kp[1]) ** 2) / mD
+        sum -= 1 - math.sqrt((column - kp[0]) ** 2 + (row - kp[1]) ** 2) / mD
     return(sum)
 
 def addHeatMapOverlay(inPath, outPath, heatmap, intensity):
@@ -126,6 +106,7 @@ paths = [r'C:\Users\Preston\Documents\R\RProjects\PhotoMappingProjectDevelopment
          r'C:\Users\Preston\Documents\R\RProjects\PhotoMappingProjectDevelopment\Data\Panoramas\DSC_0871-DSC_0870jpg.jpg']
 
 kpMatch, kpImgNames = matchKPs(paths)
-heatmap = createHeatMapMT(kpMatch[1][0][1], kpMatch[1][1][1], kpImgNames[3])
-addHeatMapOverlay(kpImgNames[3], "superimposedGKP.jpg", heatmap, 0.5)
-addHeatMapOverlay(kpImgNames[4], "superimposedG.jpg", heatmap, 0.5) # bad practice, heatmap was created for kpImgNames[3], but works because kpImgNames[2, 3, and 4] all have the same size
+#optimal amount of threads: 2
+heatmap = createHeatMap(kpMatch[1][0][1], kpMatch[1][1][1], kpImgNames[3], 2)
+addHeatMapOverlay(kpImgNames[3], kpImgNames[3], heatmap, 0.5)
+addHeatMapOverlay(kpImgNames[4], kpImgNames[4], heatmap, 0.5) # bad practice, heatmap was created for kpImgNames[3], but works because kpImgNames[2, 3, and 4] all have the same size
