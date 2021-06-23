@@ -72,9 +72,19 @@ shinyServer(function(input, output, session) {
     
     paste0(
       c(" hover coordinates:", dms_str(input$plot_hover),
-      "selected photo 1:", str_out(globalValues$selectedPhoto),
-      "selected photo 2:", str_out(globalValues$selectedPhoto2))
+        "selected photo 1:", str_out(globalValues$selectedPhoto),
+        "selected photo 2:", str_out(globalValues$selectedPhoto2))
     )
+  })
+  
+  observeEvent(input$plot_click, {
+    photosInside <- photosInsideBoundingBox(photos)
+    photosIn <- photos %>%
+      filter(Name %in% photosInside)
+    photosIn$distance <- calc.distance(input$plot_click, photosIn)
+    photosIn <- arrange(photosIn, distance)
+    photosIn <- head(photosIn, 1)
+    globalValues$selectedPhoto2 <- photosIn$Name
   })
   
   observeEvent(input$plot_dblclick, {
@@ -107,6 +117,7 @@ shinyServer(function(input, output, session) {
                                "checkedPhotos",
                                choices = photosInsideBoundingBox(photos),
                                selected = photosInsideBoundingBox(selectedPhotos))
+      globalValues$selectedPhoto2 <- NULL
     } else {
       photosInside <- photosInsideBoundingBox(photos)
       photosIn <- photos %>%
@@ -138,14 +149,147 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  observeEvent(input$inputFile, {
+    # add comment
+    
+    fileIn <- input$inputFile
+    if(!is.null(fileIn)){
+      file.copy(fileIn$datapath, normalizePath(file.path("Data", "Photos", fileIn$name)))
+      photos <- readPhotoCoordinates(directoryPath)
+      updateCheckboxGroupInput(session,
+                               "checkedPhotos",
+                               choices = photosInsideBoundingBox(photos),
+                               checked = input$checkedPhotos)
+    }
+  })
+  
   observeEvent(input$modalWindow, {
-    imgPath <- normalizePath(file.path("Data", "Photos", globalValues$selectedPhoto))
-    showModal(modalDialog(
-      title = "Test",
-      HTML('<img src="http://www.google.nl/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png">'),
-      easyClose = TRUE,
-      footer = NULL
-    ))
+    ##################################
+    # Creates a modal dialog with    #
+    # the selected images.           #
+    ##################################
+    
+    if(!is.null(globalValues$selectedPhoto)){
+      filepaths <- array(1:2)
+      
+      filepaths[1] <- convertJPG(normalizePath(file.path("Data", "Photos", globalValues$selectedPhoto)))
+      
+      placeholderimg2 <- FALSE
+      if(!is.null(globalValues$selectedPhoto2) && globalValues$selectedPhoto != globalValues$selectedPhoto2){
+        filepaths[2] <- convertJPG(normalizePath(file.path("Data", "Photos", globalValues$selectedPhoto2)))
+      } else {
+        filepaths[2] <- convertJPG(normalizePath(file.path("Data", "Other", "placeholder.jpg")))
+        placeholderimg2 <- TRUE
+      }
+      
+      output$imageSelected <- renderImage({
+        d <- rotateImage(filepaths[1])
+        h <- d[[1]]
+        w <- d[[2]]
+        mh <- session$clientData$output_imageSelected_height
+        mw <- session$clientData$output_imageSelected_width
+        getNewDims(h, w, mh, mw)
+        list(width = w,
+             height = h,
+             src = filepaths[1])
+      }, deleteFile = TRUE)
+      
+      output$imageSelected2 <- renderImage({
+        d <- rotateImage(filepaths[2])
+        h <- d[[1]]
+        w <- d[[2]]
+        mh <- session$clientData$output_imageSelected2_height
+        mw <- session$clientData$output_imageSelected2_width
+        getNewDims(h, w, mh, mw)
+        list(width = w,
+             height = h,
+             src = filepaths[2])
+      }, deleteFile = TRUE)
+      
+      if(!placeholderimg2){
+        stitchedImagePath <- getStitchPath(filepaths)
+        if(!file.exists(stitchedImagePath)){
+          stitchErrorCode <- stitch(filepaths, stitchedImagePath)
+          if(stitchErrorCode != 0){
+            stitchedImagePath <- normalizePath(file.path("Data", "Other", "placeholder.jpg"))
+          }
+        }
+      } else {
+        stitchedImagePath <- normalizePath(file.path("Data", "Other", "placeholder.jpg"))
+      }
+      
+      output$imageStitched <- renderImage({
+        d <- dim(readImage(stitchedImagePath))
+        h <- d[[1]]
+        w <- d[[2]]
+        mh <- session$clientData$output_imageStitched_height
+        mw <- session$clientData$output_imageStitched_width
+        getNewDims(h, w, mh, mw)
+        list(width = w,
+             height = h,
+             src = stitchedImagePath)
+      }, deleteFile = FALSE)
+      
+      modalTitle <- globalValues$selectedPhoto
+      if(!is.null(globalValues$selectedPhoto2)){
+        modalTitle <- paste(modalTitle, "and", globalValues$selectedPhoto2, sep = " ")
+      }
+      
+      showModal(modalDialog(
+        fluidRow(class = "row1",
+                 column(6, div(imageOutput("imageSelected",
+                                           width = "100%",
+                                           height = "200px"),
+                               style = "text-align:center;")),
+                 column(6, div(imageOutput("imageSelected2",
+                                           width = "100%",
+                                           height = "200px"),
+                               style = "text-align:center;"))),
+        fluidRow(class = "row2",
+                 column(12, div(imageOutput("imageStitched",
+                                            width = "100%",
+                                            height = "400px"),
+                                style = "text-align:center;"))),
+        tags$head(tags$style(".row1{height:225px;}
+                              .row2{height:400px;}")),
+        title = modalTitle,
+        easyClose = TRUE
+      ))
+    } else {
+      showModal(modalDialog(
+        "You must select an image.",
+        title = "Warning:",
+        easyClose = TRUE
+      ))
+    }
+  })
+  
+  observeEvent(input$tableClickUpdate, {
+    ##################################
+    # Logic controlling the          #
+    # selection of the second photo  #
+    # using a single click.          #
+    ##################################
+    
+    if(!is.null(globalValues$selectedPhoto2) && globalValues$selectedPhoto2 == input$tableClickText){
+      globalValues$selectedPhoto2 <- NULL
+    } else if(input$tableClickText %in% photosInsideBoundingBox(photos)){
+      globalValues$selectedPhoto2 <- input$tableClickText
+    }
+  })
+  
+  observeEvent(input$tableDblclickUpdate, {
+    ##################################
+    # Logic controlling the          #
+    # selection of the second photo  #
+    # using a double click.          #
+    ##################################
+    
+    if(globalValues$selectedPhoto == input$tableClickText){
+      globalValues$selectedPhoto <- NULL
+    } else if(input$tableClickText %in% photosInsideBoundingBox(photos)){
+      globalValues$selectedPhoto <- input$tableClickText      
+    }
   })
   
   observe({
@@ -205,7 +349,9 @@ shinyServer(function(input, output, session) {
         }
       }
       photoDistTable$Overlap <- overlapCol
-      photoDistTableDT <- datatable(photoDistTable[c(3, 1, 2, 4, 5)], rownames = FALSE)
+      if(nrow(photoDistTable) > 0){
+        photoDistTableDT <- datatable(photoDistTable[c(3, 1, 2, 4, 5)], rownames = FALSE)
+      }
     } else {
       photoDistTable <- NULL
       photoOverlapTable <- NULL

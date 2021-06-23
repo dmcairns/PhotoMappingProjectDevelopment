@@ -101,9 +101,9 @@ def addHeatMapOverlay(inPath, outPath, heatmap, intensity):
     cv.imwrite(outPath, superimposed)
 
 #test driver code
-paths = [r'C:\Users\Preston\Documents\R\RProjects\PhotoMappingProjectDevelopment\Data\Photos\DSC_0870.JPG',
-         r'C:\Users\Preston\Documents\R\RProjects\PhotoMappingProjectDevelopment\Data\Photos\DSC_0871.JPG',
-         r'C:\Users\Preston\Documents\R\RProjects\PhotoMappingProjectDevelopment\Data\Panoramas\DSC_0871-DSC_0870jpg.jpg']
+paths = [r'C:\Users\Preston\Documents\RPrograms\PhotoMapProject\Data\Photos\DSC_0870.JPG',
+         r'C:\Users\Preston\Documents\RPrograms\PhotoMapProject\Data\Photos\DSC_0871.JPG',
+         r'C:\Users\Preston\Documents\RPrograms\PhotoMapProject\Data\Panoramas\DSC_0871-DSC_0870jpg.jpg']
 
 kpMatch, kpImgNames = matchKPs(paths)
 #optimal amount of threads: 2

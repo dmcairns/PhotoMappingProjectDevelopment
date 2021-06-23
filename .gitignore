@@ -3,3 +3,4 @@
 .Rproj.user
 venv
 .idea
+__pycache__

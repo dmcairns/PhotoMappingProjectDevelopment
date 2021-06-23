@@ -130,6 +130,7 @@ getNewDims <- function(h, w, mh, mw){
     w <- "100%"
   }
 }
+
 rotateImage <- function(path){
   im <- readImage(path)
   orientation <- read_exif(path, tags="Orientation")
@@ -186,5 +187,5 @@ getStitchPath <- function(jpgFilepaths){
 
 stitch <- function(jpgFilepaths, outputJPGPath){
   source_python("stitch.py")
-  stitchImages(jpgFilepaths, outputJPGPath)
+  return(stitchImagesBasic(jpgFilepaths, outputJPGPath))
 }
