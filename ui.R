@@ -4,6 +4,7 @@
 # http://shiny.rstudio.com
 
 library(shiny)
+library(shinyBS)
 library(shinyjs)
 
 shinyUI(fluidPage(
@@ -42,6 +43,8 @@ shinyUI(fluidPage(
                                     choices = readPhotoNames(directoryPath),
                                     selected = readPhotoNames(directoryPath))
     ),
+    
+    #bsPopover("PhotoDistTableDT", ), TODO: add image preview popovers for photodisttable dt
     
     mainPanel(style = "overflow-y:scroll; max-height: 100vh; position:relative;",
               h1("Repeat Photography Database"),
