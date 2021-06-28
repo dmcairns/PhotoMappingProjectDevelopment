@@ -5,6 +5,7 @@
 
 library(shiny)
 library(shinyBS)
+library(shinyjs)
 
 shinyServer(function(input, output, session) {
   
@@ -183,6 +184,32 @@ shinyServer(function(input, output, session) {
         placeholderimg2 <- TRUE
       }
       
+      modalTitle <- globalValues$selectedPhoto
+      if(!is.null(globalValues$selectedPhoto2)){
+        modalTitle <- paste(modalTitle, "and", globalValues$selectedPhoto2, sep = " ")
+      }
+      
+      showModal(modalDialog(
+        fluidRow(class = "row1",
+                 column(6, div(imageOutput("imageSelected",
+                                           width = "100%",
+                                           height = "200px") %>% withSpinner(type = 5, color="#808080"),
+                               style = "text-align:center;")),
+                 column(6, div(imageOutput("imageSelected2",
+                                           width = "100%",
+                                           height = "200px") %>% withSpinner(type = 5, color="#808080"),
+                               style = "text-align:center;"))),
+        fluidRow(class = "row2",
+                 column(12, div(imageOutput("imageStitched",
+                                            width = "100%",
+                                            height = "400px") %>% withSpinner(type = 5, color="#808080"),
+                                style = "text-align:center;"))),
+        tags$head(tags$style(".row1{height:225px;}
+                              .row2{height:400px;}")),
+        title = modalTitle,
+        easyClose = TRUE
+      ))
+      
       output$imageSelected <- renderImage({
         d <- rotateImage(filepaths[1])
         h <- d[[1]]
@@ -230,32 +257,6 @@ shinyServer(function(input, output, session) {
              height = h,
              src = stitchedImagePath)
       }, deleteFile = FALSE)
-      
-      modalTitle <- globalValues$selectedPhoto
-      if(!is.null(globalValues$selectedPhoto2)){
-        modalTitle <- paste(modalTitle, "and", globalValues$selectedPhoto2, sep = " ")
-      }
-      
-      showModal(modalDialog(
-        fluidRow(class = "row1",
-                 column(6, div(imageOutput("imageSelected",
-                                           width = "100%",
-                                           height = "200px"),
-                               style = "text-align:center;")),
-                 column(6, div(imageOutput("imageSelected2",
-                                           width = "100%",
-                                           height = "200px"),
-                               style = "text-align:center;"))),
-        fluidRow(class = "row2",
-                 column(12, div(imageOutput("imageStitched",
-                                            width = "100%",
-                                            height = "400px"),
-                                style = "text-align:center;"))),
-        tags$head(tags$style(".row1{height:225px;}
-                              .row2{height:400px;}")),
-        title = modalTitle,
-        easyClose = TRUE
-      ))
     } else {
       showModal(modalDialog(
         "You must select an image.",
@@ -292,6 +293,12 @@ shinyServer(function(input, output, session) {
       globalValues$selectedPhoto <- input$tableClickText      
     }
   })
+  
+  #observeEvent(input$tableHoverUpdate, {
+    #if(input$tableHoverText %in% photosInsideBoundingBox(photos)){
+    #  
+    #}
+  #})
   
   observe({
     ##################################

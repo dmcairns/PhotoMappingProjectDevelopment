@@ -44,8 +44,6 @@ shinyUI(fluidPage(
                                     selected = readPhotoNames(directoryPath))
     ),
     
-    #bsPopover("PhotoDistTableDT", ), TODO: add image preview popovers for photodisttable dt
-    
     mainPanel(style = "overflow-y:scroll; max-height: 100vh; position:relative;",
               h1("Repeat Photography Database"),
               
@@ -53,7 +51,7 @@ shinyUI(fluidPage(
                          click = "plot_click",
                          dblclick = "plot_dblclick",
                          hover = "plot_hover",
-                         brush = "plot_brush"),
+                         brush = "plot_brush") %>% withSpinner(type = 5, color="#808080"),
               
               verbatimTextOutput("info"),
               
@@ -65,15 +63,24 @@ shinyUI(fluidPage(
               
               dataTableOutput("photoDistTableDT"),
               
-              tagList(  
+              #bsPopover(id = "photoDistTableDT",
+              #          title = "test",
+              #          content = "test",
+              #          placement = "top",
+              #          trigger = "hover"),
+              
+              tagList(
                 tags$script(paste0("$(document).on('click', '#photoDistTableDT td', function(){
                                            Shiny.onInputChange('tableClickText', this.textContent);
                                            Shiny.onInputChange('tableClickUpdate', Math.random());
                                        });")),
-                
                 tags$script(paste0("$(document).on('dblclick', '#photoDistTableDT td', function(){
                                            Shiny.onInputChange('tableClickText', this.textContent);
                                            Shiny.onInputChange('tableDblclickUpdate', Math.random());
+                                       })")),
+                tags$script(paste0("$(document).on('mouseenter', '#photoDistTableDT td', function(){
+                                           Shiny.onInputChange('tableHoverText', this.textContent);
+                                           Shiny.onInputChange('tableHoverUpdate', Math.random());
                                        })")),
               )
     )

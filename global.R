@@ -10,6 +10,7 @@ library(magick)
 library(OpenImageR)
 library(reticulate)
 library(rgdal)
+library(shinycssloaders)
 
 ###########################################
 #              Source Files               #
