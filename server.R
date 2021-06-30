@@ -294,11 +294,17 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  #observeEvent(input$tableHoverUpdate, {
-    #if(input$tableHoverText %in% photosInsideBoundingBox(photos)){
-    #  
-    #}
-  #})
+  observeEvent(input$tableHoverUpdate, {
+    ##################################
+    # Logic used to update the       #
+    # preview window photo.          #
+    ##################################
+    
+    if(input$tableHoverText %in% photosInsideBoundingBox(photos)){
+      image_write(image_read(paste0(normalizePath(file.path("Data", "Photos")), "\\", input$tableHoverText)), paste0(normalizePath(file.path("www")), "\\", "preview.", format = "jpg"))
+    }
+    
+  })
   
   observe({
     ##################################

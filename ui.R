@@ -13,7 +13,7 @@ shinyUI(fluidPage(
   h4(" "),
   
   sidebarLayout(
-    sidebarPanel(style = "overflow-y:scroll; max-height: 100vh; position:relative;",
+    sidebarPanel(style = "position: fixed; overflow-y:scroll; width: 32%; height: 97%;",
                  h4("Control:"),
                  
                  sliderInput("viewDistance",
@@ -44,8 +44,7 @@ shinyUI(fluidPage(
                                     selected = readPhotoNames(directoryPath))
     ),
     
-    mainPanel(style = "overflow-y:scroll; max-height: 100vh; position:relative;",
-              h1("Repeat Photography Database"),
+    mainPanel(h1("Repeat Photography Database"),
               
               plotOutput("theMap",
                          click = "plot_click",
@@ -63,25 +62,27 @@ shinyUI(fluidPage(
               
               dataTableOutput("photoDistTableDT"),
               
-              #bsPopover(id = "photoDistTableDT",
-              #          title = "test",
-              #          content = "test",
-              #          placement = "top",
-              #          trigger = "hover"),
+              bsPopover(id = "photoDistTableDT",
+                        title = "Image Preview",
+                        content = "<img id = \"preview\" src = \"placeholder.jpg\" width = \"200\" height = \"200\">",
+                        placement = "top",
+                        trigger = "hover",
+                        options = list("delay': 5000, 'it" = "sucks")),
               
               tagList(
-                tags$script(paste0("$(document).on('click', '#photoDistTableDT td', function(){
+                tags$script("$(document).on('click', '#photoDistTableDT td', function(){
                                            Shiny.onInputChange('tableClickText', this.textContent);
                                            Shiny.onInputChange('tableClickUpdate', Math.random());
-                                       });")),
-                tags$script(paste0("$(document).on('dblclick', '#photoDistTableDT td', function(){
+                                       });"),
+                tags$script("$(document).on('dblclick', '#photoDistTableDT td', function(){
                                            Shiny.onInputChange('tableClickText', this.textContent);
                                            Shiny.onInputChange('tableDblclickUpdate', Math.random());
-                                       })")),
-                tags$script(paste0("$(document).on('mouseenter', '#photoDistTableDT td', function(){
+                                       })"),
+                tags$script("$(document).on('mouseenter', '#photoDistTableDT td', function(){
                                            Shiny.onInputChange('tableHoverText', this.textContent);
                                            Shiny.onInputChange('tableHoverUpdate', Math.random());
-                                       })")),
+                                           //$('#photoDistTableDT').popover('show');
+                                       })")
               )
     )
   )

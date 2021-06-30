@@ -172,8 +172,8 @@ convertJPG <- function(filename){
   ###############################
   
   extension <- regmatches(filename, regexpr("[^.]*$", filename))
-  filenameWithJPGExt <- paste(substr(filename, 1, nchar(filename) - nchar(extension) - 1), "jpg.", "jpg", sep = "")
-  image_write(image_read(filename), path = filenameWithJPGExt, format = "jpg")
+  filenameWithJPGExt <- paste0(substr(filename, 1, nchar(filename) - nchar(extension) - 1), "jpg.jpg")
+  image_write(image_read(filename), filenameWithJPGExt, format = "jpg")
   return(filenameWithJPGExt)
 }
 
@@ -182,7 +182,7 @@ getStitchPath <- function(jpgFilepaths){
     jpgFilepaths[i] <- paste(substr(jpgFilepaths[i], 1, nchar(jpgFilepaths[i]) - 7))
     jpgFilepaths[i] <- regmatches(jpgFilepaths[i], regexpr("[^\\]+$", jpgFilepaths[i]))
   }
-  return(paste(normalizePath(file.path("Data", "Panoramas")), "\\", jpgFilepaths[1], "-", jpgFilepaths[2], "jpg.jpg", sep=""))
+  return(paste0(normalizePath(file.path("Data", "Panoramas")), "\\", jpgFilepaths[1], "-", jpgFilepaths[2], "jpg.jpg"))
 }
 
 stitch <- function(jpgFilepaths, outputJPGPath){
