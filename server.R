@@ -302,6 +302,7 @@ shinyServer(function(input, output, session) {
     
     if(input$tableHoverText %in% photosInsideBoundingBox(photos)){
       image_write(image_read(paste0(normalizePath(file.path("Data", "Photos")), "\\", input$tableHoverText)), paste0(normalizePath(file.path("www")), "\\", "preview.", format = "jpg"))
+      session$sendCustomMessage(type = "refresh", "previewImg")
     }
     
   })

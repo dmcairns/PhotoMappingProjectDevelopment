@@ -64,25 +64,27 @@ shinyUI(fluidPage(
               
               bsPopover(id = "photoDistTableDT",
                         title = "Image Preview",
-                        content = "<img id = \"preview\" src = \"placeholder.jpg\" width = \"200\" height = \"200\">",
+                        content = "<img id = \"previewImg\" src = \"preview.jpg\" width = \"200\" height = \"200\">",
                         placement = "top",
-                        trigger = "hover",
-                        options = list("delay': 5000, 'it" = "sucks")),
+                        trigger = "hover"),
               
               tagList(
                 tags$script("$(document).on('click', '#photoDistTableDT td', function(){
-                                           Shiny.onInputChange('tableClickText', this.textContent);
-                                           Shiny.onInputChange('tableClickUpdate', Math.random());
-                                       });"),
+                                 Shiny.onInputChange('tableClickText', this.textContent);
+                                 Shiny.onInputChange('tableClickUpdate', Math.random());
+                             });"),
                 tags$script("$(document).on('dblclick', '#photoDistTableDT td', function(){
-                                           Shiny.onInputChange('tableClickText', this.textContent);
-                                           Shiny.onInputChange('tableDblclickUpdate', Math.random());
-                                       })"),
+                                 Shiny.onInputChange('tableClickText', this.textContent);
+                                 Shiny.onInputChange('tableDblclickUpdate', Math.random());
+                             })"),
                 tags$script("$(document).on('mouseenter', '#photoDistTableDT td', function(){
-                                           Shiny.onInputChange('tableHoverText', this.textContent);
-                                           Shiny.onInputChange('tableHoverUpdate', Math.random());
-                                           //$('#photoDistTableDT').popover('show');
-                                       })")
+                                 Shiny.onInputChange('tableHoverText', this.textContent);
+                                 Shiny.onInputChange('tableHoverUpdate', Math.random());
+                                 document.getElementById(\"previewImg\").src = \"placeholder.jpg?t=\" + (new Date().getTime());
+                             })"),
+                tags$script("Shiny.addCustomMessageHandler('refresh', function(id) {
+                                 document.getElementById(id).src = \"preview.jpg?t=\" + (new Date().getTime());
+                             })")
               )
     )
   )
