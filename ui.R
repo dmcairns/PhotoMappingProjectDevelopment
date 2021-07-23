@@ -64,7 +64,7 @@ shinyUI(fluidPage(
               
               bsPopover(id = "photoDistTableDT",
                         title = "Image Preview",
-                        content = "<img id = \"previewImg\" src = \"preview.jpg\" width = \"200\" height = \"200\">",
+                        content = "<img id = \"previewImg\" src = \"placeholder.jpg\" width = \"200\" height = \"200\">",
                         placement = "top",
                         trigger = "hover"),
               
@@ -82,8 +82,8 @@ shinyUI(fluidPage(
                                  Shiny.onInputChange('tableHoverUpdate', Math.random());
                                  document.getElementById(\"previewImg\").src = \"placeholder.jpg?t=\" + (new Date().getTime());
                              })"),
-                tags$script("Shiny.addCustomMessageHandler('refresh', function(id) {
-                                 document.getElementById(id).src = \"preview.jpg?t=\" + (new Date().getTime());
+                tags$script("Shiny.addCustomMessageHandler('refresh', function(time) {
+                                 document.getElementById(\"previewImg\").src = \"previews/preview\" + time + \".jpg\";
                              })")
               )
     )

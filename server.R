@@ -301,8 +301,15 @@ shinyServer(function(input, output, session) {
     ##################################
     
     if(input$tableHoverText %in% photosInsideBoundingBox(photos)){
-      image_write(image_read(paste0(normalizePath(file.path("Data", "Photos")), "\\", input$tableHoverText)), paste0(normalizePath(file.path("www")), "\\", "preview.", format = "jpg"))
-      session$sendCustomMessage(type = "refresh", "previewImg")
+      globalValues$oldTime <- globalValues$time
+      globalValues$time <- sub("\\.", "", toString(as.numeric(Sys.time())))
+      if(!is.null(globalValues$oldTime)){
+        deletePath <- paste0(normalizePath(file.path("www", "previews")), "\\preview", globalValues$oldTime, ".jpg")
+        Sys.chmod(normalizePath(file.path("www")), "0777", use_umask = FALSE)
+        file.remove(deletePath)
+      }
+      image_write(image_read(paste0(normalizePath(file.path("Data", "Photos")), "\\", input$tableHoverText)), paste0(normalizePath(file.path("www", "previews")), "\\preview", globalValues$time, ".jpg"), format = "jpg")
+      session$sendCustomMessage(type = "refresh", globalValues$time)
     }
     
   })
