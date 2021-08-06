@@ -11,8 +11,11 @@ shinyServer(function(input, output, session) {
   
   photos <- readPhotoCoordinates(directoryPath)
   dfDraw <- data.frame(matrix(ncol=0,nrow=0))
+  timeStart <- sub("\\.", "", toString(as.numeric(Sys.time())))
+  logFilePath <- paste0(normalizePath(file.path("Data", "Logs")), "\\log", timeStart, ".txt")
+  writeLines(c("=== Log Begin ==="), logFilePath)
   
-  print(photos)
+  #print(photos)
   
   output$theMap <- renderPlot({
     ##################################
@@ -296,15 +299,35 @@ shinyServer(function(input, output, session) {
   
   observeEvent(input$tableHoverUpdate, {
     ##################################
-    # Logic used to update the       #
-    # preview window photo.          #
+    # Logic used to copy the preview #
+    # window photo to directory.     #
     ##################################
     
     if(input$tableHoverText %in% photosInsideBoundingBox(photos)){
-      image_write(image_read(paste0(normalizePath(file.path("Data", "Photos")), "\\", input$tableHoverText)), paste0(normalizePath(file.path("www")), "\\", "preview.", format = "jpg"))
-      session$sendCustomMessage(type = "refresh", "previewImg")
+      time <- sub("\\.", "", toString(formatC(Sys.time(), digits = 5, format = "f")))
+      image_write(image_read(paste0(normalizePath(file.path("Data", "Photos")), "\\", input$tableHoverText)), paste0(normalizePath(file.path("www", "previews")), "\\preview", time, ".jpg"), format = "jpg")
+      globalValues$previewDir <- list.files(paste0(normalizePath(file.path("www", "previews"))))
     }
+  })
+  
+  observeEvent(globalValues$previewDir, {
+    ##################################
+    # Logic used to delete old       #
+    # photos from preview directory. #
+    # Also updates preview window.   #
+    ##################################
     
+    previewDir <- globalValues$previewDir
+    maxTime <- substring(strsplit(previewDir[length(previewDir)], "\\.")[[1]][1], 8)
+    session$sendCustomMessage(type = "refresh", maxTime)
+    for(file in previewDir){
+      if(substring(strsplit(file, "\\.")[[1]][1], 8) != maxTime){
+        deletePath <- paste0(normalizePath(file.path("www", "previews")), "\\", file)
+        if(file.exists(deletePath)){
+          unlink(deletePath, force = TRUE)
+        }
+      }
+    }
   })
   
   observe({
