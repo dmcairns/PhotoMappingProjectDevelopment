@@ -14,11 +14,6 @@ shinyServer(function(input, output, session) {
   timeStart <- sub("\\.", "", toString(as.numeric(Sys.time())))
   logFilePath <- paste0(normalizePath(file.path("Data", "Logs")), "\\log", timeStart, ".txt")
   writeLines(c("=== Log Begin ==="), logFilePath)
-<<<<<<< HEAD
-=======
-  oldTime <- NULL
-  time <- NULL
->>>>>>> d7b5f46ec196747aae3af6007b7139c1c545420f
   
   #print(photos)
   
@@ -309,7 +304,6 @@ shinyServer(function(input, output, session) {
     ##################################
     
     if(input$tableHoverText %in% photosInsideBoundingBox(photos)){
-<<<<<<< HEAD
       time <- sub("\\.", "", toString(formatC(Sys.time(), digits = 5, format = "f")))
       image_write(image_read(paste0(normalizePath(file.path("Data", "Photos")), "\\", input$tableHoverText)), paste0(normalizePath(file.path("www", "previews")), "\\preview", time, ".jpg"), format = "jpg")
       globalValues$previewDir <- list.files(paste0(normalizePath(file.path("www", "previews"))))
@@ -334,19 +328,6 @@ shinyServer(function(input, output, session) {
         }
       }
     }
-=======
-      oldTime <- time
-      time <- sub("\\.", "", toString(as.numeric(Sys.time())))
-      image_write(image_read(paste0(normalizePath(file.path("Data", "Photos")), "\\", input$tableHoverText)), paste0(normalizePath(file.path("www", "previews")), "\\preview", time, ".jpg"), format = "jpg")
-      session$sendCustomMessage(type = "refresh", time)
-      if(!is.null(oldTime)){
-        deletePath <- paste0(normalizePath(file.path("www", "previews")), "\\preview", oldTime, ".jpg")
-        while(file.exists(deletePath)){
-          unlink(deletePath, force = TRUE)
-        }
-      }
-    }
->>>>>>> d7b5f46ec196747aae3af6007b7139c1c545420f
   })
   
   observe({
