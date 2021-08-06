@@ -11,8 +11,13 @@ shinyServer(function(input, output, session) {
   
   photos <- readPhotoCoordinates(directoryPath)
   dfDraw <- data.frame(matrix(ncol=0,nrow=0))
+  timeStart <- sub("\\.", "", toString(as.numeric(Sys.time())))
+  logFilePath <- paste0(normalizePath(file.path("Data", "Logs")), "\\log", timeStart, ".txt")
+  writeLines(c("=== Log Begin ==="), logFilePath)
+  oldTime <- NULL
+  time <- NULL
   
-  print(photos)
+  #print(photos)
   
   output$theMap <- renderPlot({
     ##################################
@@ -301,12 +306,12 @@ shinyServer(function(input, output, session) {
     ##################################
     
     if(input$tableHoverText %in% photosInsideBoundingBox(photos)){
-      globalValues$oldTime <- globalValues$time
-      globalValues$time <- sub("\\.", "", toString(as.numeric(Sys.time())))
-      image_write(image_read(paste0(normalizePath(file.path("Data", "Photos")), "\\", input$tableHoverText)), paste0(normalizePath(file.path("www", "previews")), "\\preview", globalValues$time, ".jpg"), format = "jpg")
-      session$sendCustomMessage(type = "refresh", globalValues$time)
-      if(!is.null(globalValues$oldTime)){
-        deletePath <- paste0(normalizePath(file.path("www", "previews")), "\\preview", globalValues$oldTime, ".jpg")
+      oldTime <- time
+      time <- sub("\\.", "", toString(as.numeric(Sys.time())))
+      image_write(image_read(paste0(normalizePath(file.path("Data", "Photos")), "\\", input$tableHoverText)), paste0(normalizePath(file.path("www", "previews")), "\\preview", time, ".jpg"), format = "jpg")
+      session$sendCustomMessage(type = "refresh", time)
+      if(!is.null(oldTime)){
+        deletePath <- paste0(normalizePath(file.path("www", "previews")), "\\preview", oldTime, ".jpg")
         while(file.exists(deletePath)){
           unlink(deletePath, force = TRUE)
         }
