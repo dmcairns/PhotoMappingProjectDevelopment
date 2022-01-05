@@ -91,24 +91,24 @@ create.map <- function(photo.coordinates, bounding.box, fovDist, fovDraw, dfDraw
   if(fovDraw){
     if(!is.null(selectedPhoto.coordinates)){
       hs.map <- ggmap(get_map(location = bounding.box, zoom=3)) +
-        geom_point(shape = 19, color = "#FF0000", data = dfDraw, aes(x = Lon, y = Lat)) +
-        geom_segment(data = dfDraw, aes(x = FOVRightLon, y = FOVRightLat, xend = FOVCenterLon, yend = FOVCenterLat, color = "FF0000")) +
-        geom_segment(data = dfDraw, aes(x = FOVLeftLon, y = FOVLeftLat, xend = FOVCenterLon, yend = FOVCenterLat, color = "FF0000")) +
-        geom_point(shape = 19, color =  "#4080FF", data = selectedPhoto.coordinates, aes(x = GPSLongitude, y = GPSLatitude))
+        geom_point(shape = 19, color = "#E4002B", data = dfDraw, aes(x = Lon, y = Lat)) +
+        geom_segment(data = dfDraw, aes(x = FOVRightLon, y = FOVRightLat, xend = FOVCenterLon, yend = FOVCenterLat, color = "E4002B")) +
+        geom_segment(data = dfDraw, aes(x = FOVLeftLon, y = FOVLeftLat, xend = FOVCenterLon, yend = FOVCenterLat, color = "E4002B")) +
+        geom_point(shape = 19, color =  "#003C71", data = selectedPhoto.coordinates, aes(x = GPSLongitude, y = GPSLatitude))
     } else {
       hs.map <- ggmap(get_map(location = bounding.box, zoom=3)) +
-        geom_point(shape = 19, color = "#FF0000", data = dfDraw, aes(x = Lon, y = Lat)) +
-        geom_segment(data = dfDraw, aes(x = FOVRightLon, y = FOVRightLat, xend = FOVCenterLon, yend = FOVCenterLat, color = "FF0000")) +
-        geom_segment(data = dfDraw, aes(x = FOVLeftLon, y = FOVLeftLat, xend = FOVCenterLon, yend = FOVCenterLat, color = "FF0000"))
+        geom_point(shape = 19, color = "#E4002B", data = dfDraw, aes(x = Lon, y = Lat)) +
+        geom_segment(data = dfDraw, aes(x = FOVRightLon, y = FOVRightLat, xend = FOVCenterLon, yend = FOVCenterLat, color = "E4002B")) +
+        geom_segment(data = dfDraw, aes(x = FOVLeftLon, y = FOVLeftLat, xend = FOVCenterLon, yend = FOVCenterLat, color = "E4002B"))
     }
   } else {
     if(!is.null(selectedPhoto.coordinates)){
       hs.map <- ggmap(get_map(location = bounding.box, zoom=3)) +
-        geom_point(shape = 19, color = "#FF0000", data = dfDraw, aes(x = Lon, y = Lat)) +
-        geom_point(shape = 19, color = "#4080FF", data = selectedPhoto.coordinates, aes(x = GPSLongitude, y = GPSLatitude))
+        geom_point(shape = 19, color = "#E4002B", data = dfDraw, aes(x = Lon, y = Lat)) +
+        geom_point(shape = 19, color = "#003C71", data = selectedPhoto.coordinates, aes(x = GPSLongitude, y = GPSLatitude))
     } else {
       hs.map <- ggmap(get_map(location = bounding.box, zoom=3)) +
-        geom_point(shape = 19, color = "#FF0000", data = dfDraw, aes(x = Lon, y = Lat))
+        geom_point(shape = 19, color = "#E4002B", data = dfDraw, aes(x = Lon, y = Lat))
     }
   }
   return(hs.map)

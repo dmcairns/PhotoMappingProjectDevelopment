@@ -308,7 +308,9 @@ shinyServer(function(input, output, session) {
     if(input$tableHoverText %in% photosInsideBoundingBox(photos)){
       oldTime <- time
       time <- sub("\\.", "", toString(as.numeric(Sys.time())))
-      image_write(image_read(paste0(normalizePath(file.path("Data", "Photos")), "\\", input$tableHoverText)), paste0(normalizePath(file.path("www", "previews")), "\\preview", time, ".jpg"), format = "jpg")
+      newPath <- paste0(normalizePath(file.path("www", "previews")), "\\preview", time, ".jpg")
+      image_write(image_resize(image_read(paste0(normalizePath(file.path("Data", "Photos")), "\\", input$tableHoverText)), "200x200"), newPath, format = "jpg")
+      rotateImage(newPath)
       session$sendCustomMessage(type = "refresh", time)
       if(!is.null(oldTime)){
         deletePath <- paste0(normalizePath(file.path("www", "previews")), "\\preview", oldTime, ".jpg")
