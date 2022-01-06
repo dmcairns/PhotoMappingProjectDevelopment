@@ -318,7 +318,6 @@ shinyServer(function(input, output, session) {
         }
       }
       time <- sub("\\.", "", toString(formatC(Sys.time(), digits = 5, format = "f")))
-      #image_write(image_read(paste0(normalizePath(file.path("Data", "Photos")), "\\", input$tableHoverText)), paste0(normalizePath(file.path("www", "previews")), "\\preview", time, ".jpg"), format = "jpg")
       globalValues$previewDir <- list.files(paste0(normalizePath(file.path("www", "previews"))))
     }
   })

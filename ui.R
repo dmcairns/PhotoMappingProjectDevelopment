@@ -53,17 +53,19 @@ sidebar <- dashboardSidebar(collapsed = TRUE,
                             )
 
 body <- dashboardBody(h1("Repeat Photography Database"),
-                                    
+                      
+                      br(),
+                      
                       plotOutput("theMap",
                                  click = "plot_click",
                                  dblclick = "plot_dblclick",
                                  hover = "plot_hover",
                                  brush = "plot_brush") %>% withSpinner(type = 5, color="#808080"),
-                      hr(),
+                      br(),
                       
                       verbatimTextOutput("info"),
                       
-                      hr(),
+                      br(),
                       
                       actionButton("modalWindow", "View Selected Photos"),
                       
@@ -100,17 +102,22 @@ body <- dashboardBody(h1("Repeat Photography Database"),
                         
                         tags$style(HTML("hr {border-top: 1px solid #000000;}")),
                         
-                        tags$style(HTML('.skin-blue .main-header .logo {
+                        tags$style(HTML("@import url('https://fonts.googleapis.com/css?family=Open+Sans');")),
+                        
+                        tags$style(HTML("@import url('https://fonts.googleapis.com/css?family=Oswald');")),
+                        
+                        tags$style(HTML("@import url('https://fonts.googleapis.com/css?family=Crimson+Pro');")),
+                        
+                        tags$style(HTML('.skin-blue .main-header .logo, .skin-blue .main-header .navbar{
                                             background-color: #500000;
                                         }
-                                        .skin-blue .main-header .logo:hover {
+                                        .skin-blue .main-header .logo:hover, .skin-blue .main-header .navbar .sidebar-toggle:hover{
                                             background-color: #3c0000;
-                                        }
-                                        .skin-blue .main-header .navbar {
-                                            background-color: #500000;
                                         }
                                         .skin-blue .main-sidebar {
                                             background-color: #333333;
+                                            font-family: "Open Sans", sans-serif;
+                                            font-weight: 300;
                                         }
                                         .skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
                                             background-color: #3e3e3e;
@@ -120,13 +127,7 @@ body <- dashboardBody(h1("Repeat Photography Database"),
                                             background-color: #333333;
                                             color: #eaeaea;
                                         }
-                                        .skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
-                                            background-color: #3e3e3e;
-                                        }
-                                        .skin-blue .main-header .navbar .sidebar-toggle:hover{
-                                            background-color: #3c0000;
-                                        }
-                                        .skin-blue .sidebar-menu>li>.treeview-menu{
+                                        .skin-blue .main-sidebar .sidebar .sidebar-menu a:hover, .skin-blue .sidebar-menu>li>.treeview-menu{
                                             background-color: #3e3e3e;
                                         }
                                         .irs-bar{
@@ -141,12 +142,37 @@ body <- dashboardBody(h1("Repeat Photography Database"),
                                         .irs-from, .irs-to, .irs-single{
                                             color: #eaeaea;
                                             background: #732f2f;
+                                            font-family: "Crimson Pro", sans-serif;
+                                            font-weight: 300;
                                         }
                                         .irs-grid-pol, .irs-grid-pol.small{
                                             background: #a7a7a7;
                                         }
-                                        .irs-grid-text{
-                                            color: #eaeaea
+                                        .irs-grid-text, .checkbox label, label{
+                                            color: #eaeaea;
+                                            font-family: "Crimson Pro", sans-serif;
+                                            font-weight: 300;
+                                        }
+                                        .input-group-btn:first-child>.btn, .input-group-btn:first-child>.btn-group, .input-group .form-control:last-child, .input-group-addon:last-child, .input-group-btn:first-child>.btn-group:not(:first-child)>.btn, .input-group-btn:first-child>.btn:not(:first-child), .input-group-btn:last-child>.btn, .input-group-btn:last-child>.btn-group>.btn, .input-group-btn:last-child>.dropdown-toggle{
+                                            background-color: #eaeaea;
+                                            border-bottom-color: #a7a7a7;
+                                            border-top-color: #a7a7a7;
+                                            border-left-color: #a7a7a7;
+                                            border-right-color: #a7a7a7;
+                                            color: #333333;
+                                        }
+                                        .input-group .form-control:last-child, .input-group-addon:last-child, .input-group-btn:first-child>.btn-group:not(:first-child)>.btn, .input-group-btn:first-child>.btn:not(:first-child), .input-group-btn:last-child>.btn, .input-group-btn:last-child>.btn-group>.btn, .input-group-btn:last-child>.dropdown-toggle{
+                                            height: 33px;
+                                            border-top-right-radius: 3px;
+                                            border-bottom-right-radius: 3px;
+                                            font-family: "Crimson Pro", sans-serif;
+                                            font-weight: 300;
+                                        }
+                                        .h1, h1{
+                                            color: #3c0000;
+                                            font-family: "Oswald", sans-serif;
+                                            font-weight: 500;
+                                            text-align: center;
                                         }'))))
 
 shinyUI(dashboardPage(options = list(),
