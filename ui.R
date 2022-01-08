@@ -102,11 +102,9 @@ body <- dashboardBody(h1("Repeat Photography Database"),
                         
                         tags$style(HTML("hr {border-top: 1px solid #000000;}")),
                         
-                        tags$style(HTML("@import url('https://fonts.googleapis.com/css?family=Open+Sans');")),
-                        
-                        tags$style(HTML("@import url('https://fonts.googleapis.com/css?family=Oswald');")),
-                        
-                        tags$style(HTML("@import url('https://fonts.googleapis.com/css?family=Crimson+Pro');")),
+                        tags$style(HTML("@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+                                        @import url('https://fonts.googleapis.com/css?family=Oswald');
+                                        @import url('https://fonts.googleapis.com/css?family=Crimson+Pro');")),
                         
                         tags$style(HTML('.skin-blue .main-header .logo, .skin-blue .main-header .navbar{
                                             background-color: #500000;
@@ -148,7 +146,12 @@ body <- dashboardBody(h1("Repeat Photography Database"),
                                         .irs-grid-pol, .irs-grid-pol.small{
                                             background: #a7a7a7;
                                         }
-                                        .irs-grid-text, .checkbox label, label{
+                                        label{
+                                            color: #3e3e3e;
+                                            font-family: "Open Sans", sans-serif;
+                                            font-weight: 300;
+                                        }
+                                        .irs-grid-text, .sidebar-menu label{
                                             color: #eaeaea;
                                             font-family: "Crimson Pro", sans-serif;
                                             font-weight: 300;
@@ -159,7 +162,9 @@ body <- dashboardBody(h1("Repeat Photography Database"),
                                             border-top-color: #a7a7a7;
                                             border-left-color: #a7a7a7;
                                             border-right-color: #a7a7a7;
-                                            color: #333333;
+                                            color: #3e3e3e;
+                                            font-family: "Crimson Pro", sans-serif;
+                                            font-weight: 300;
                                         }
                                         .input-group .form-control:last-child, .input-group-addon:last-child, .input-group-btn:first-child>.btn-group:not(:first-child)>.btn, .input-group-btn:first-child>.btn:not(:first-child), .input-group-btn:last-child>.btn, .input-group-btn:last-child>.btn-group>.btn, .input-group-btn:last-child>.dropdown-toggle{
                                             height: 33px;
@@ -173,6 +178,62 @@ body <- dashboardBody(h1("Repeat Photography Database"),
                                             font-family: "Oswald", sans-serif;
                                             font-weight: 500;
                                             text-align: center;
+                                        }
+                                        .content, .content-wrapper{
+                                            background-color: #d1d1d1;
+                                        }
+                                        .btn-default, pre.shiny-text-output, div.datatables{
+                                            color: #3e3e3e;
+                                            background-color: #eaeaea;
+                                            border-color: #a7a7a7;
+                                            font-family: "Open Sans", sans-serif;
+                                            font-weight: 300;
+                                        }
+                                        div.datatables, table.dataTable thead th, table.dataTable thead td{
+                                            color: #3e3e3e;
+                                            background-color: #d1d1d1;
+                                            font-family: "Open Sans", sans-serif;
+                                            font-weight: 300;
+                                        }
+                                        table.dataTable thead th, table.dataTable thead td{
+                                            border-bottom: 2px solid #a7a7a7;
+                                        }
+                                        table.dataTable thead .sorting_desc, table.dataTable thead .sorting_asc{
+                                            outline-color: #d1d1d1;
+                                        }
+                                        table.dataTable.display tbody tr.odd{
+                                            background-color: #d1d1d1;
+                                        }
+                                        table.dataTable tr.selected td, table.dataTable td.selected{
+                                            background-color: #a7a7a7 !important;
+                                        }
+                                        table.dataTable.row-border tbody th, table.dataTable.row-border tbody td, table.dataTable.display tbody th, table.dataTable.display tbody td{
+                                            border-top: 1px solid #d1d1d1;
+                                        }
+                                        table.dataTable.no-footer{
+                                            border-bottom: 2px solid #a7a7a7;
+                                        }
+                                        select{
+                                            color: #3e3e3e;
+                                            background-color: #eaeaea;
+                                            border-color: #a7a7a7;
+                                            border-radius: 3px;
+                                            outline-color: #d1d1d1;
+                                        }
+                                        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled, .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover, .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:active{
+                                            color: #3e3e3e !important;
+                                        }
+                                        .dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover{
+                                            color: #3e3e3e;
+                                            border: 1px solid #a7a7a7;
+                                            border-radius: 3px;
+                                            background: #eaeaea;
+                                        }
+                                        .dataTables_wrapper .dataTables_paginate .paginate_button:hover{
+                                            color: #d1d1d1;
+                                            border: 1px solid #333333;
+                                            border-radius: 3px;
+                                            background: #3e3e3e;
                                         }'))))
 
 shinyUI(dashboardPage(options = list(),

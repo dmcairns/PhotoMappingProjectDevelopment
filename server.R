@@ -41,7 +41,7 @@ shinyServer(function(input, output, session) {
     
     xy_str <- function(e) {
       if(is.null(e)) return("NULL\n")
-      paste0("x=", round(e$x, 2), " y=", round(e$y, 2), "\n")
+      paste0("x=", round(e$x, 2), " y=", round(e$y, 2))
     }
     
     dms_str <- function(e) {
@@ -72,14 +72,14 @@ shinyServer(function(input, output, session) {
     }
     
     str_out <- function(e) {
-      if(is.null(e)) return("NULL\n")
-      paste0(e, "\n")              
+      if(is.null(e)) return("NULL")
+      paste0(e)              
     }
     
     paste0(
-      c(" hover coordinates:", dms_str(input$plot_hover),
-        "selected photo 1:", str_out(globalValues$selectedPhoto),
-        "selected photo 2:", str_out(globalValues$selectedPhoto2))
+      c(" Hover Coordinates:", dms_str(input$plot_hover),
+        "Selected Photo 1:", str_out(globalValues$selectedPhoto),
+        ", Selected Photo 2:", str_out(globalValues$selectedPhoto2))
     )
   })
   
@@ -193,8 +193,7 @@ shinyServer(function(input, output, session) {
         modalTitle <- paste(modalTitle, "and", globalValues$selectedPhoto2, sep = " ")
       }
       
-      showModal(modalDialog(
-        fluidRow(class = "row1",
+      showModal(modalDialog(id = "md", fluidRow(class = "row1",
                  column(6, div(imageOutput("imageSelected",
                                            width = "100%",
                                            height = "200px") %>% withSpinner(type = 5, color="#808080"),
